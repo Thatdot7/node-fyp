@@ -1,44 +1,26 @@
-import threading
-import webbrowser
 import BaseHTTPServer
 import SimpleHTTPServer
-from os import curdir, sep
+import json
+import GPIO_on, GPIO_off
 
 FILE = 'index.html'
-PORT = 8080
+PORT = 80
 
 
 class TestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     """The test example handler."""
 
-    def do_GET(self):
-        try:
-            if self.path.endswith(".html"):
-                f = open(curdir + sep + self.path)
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(f.read())
-                f.close()
-                return
-            if self.path == "/":
-                f = open(curdir + sep + "/" + FILE)
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(f.read())
-                f.close()
-                return
-            
-        except IOError:
-            self.send_error(404, "File Not Found: %s" % self.path)
+    def do_POST(self):
+        length = self.headers.getheader('content-length')
+        print length
+        print self.headers.getheader('Content-type')
+        data = self.rfile.read(int(length))
 
-def open_browser():
-    """Start a browser after waiting for half a second."""
-    def _open_browser():
-        webbrowser.open('http://localhost')
-    thread = threading.Timer(0.5, _open_browser)
-    thread.start()
+        if data[0] == 1:
+            GPIO_on.run_script(data[1])
+        else:
+            GPIO_off.run_script(data[1])
+        
 
 def start_server():
     """Start the server."""
@@ -47,5 +29,5 @@ def start_server():
     server.serve_forever()
 
 if __name__ == "__main__":
-    open_browser()
+    print "The server has been started on http://localhost:%s" %PORT
     start_server()
