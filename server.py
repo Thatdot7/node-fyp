@@ -1,27 +1,51 @@
+import threading
+import webbrowser
+import BaseHTTPServer
+import SimpleHTTPServer
 from os import curdir, sep
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
-class request_handler(BaseHTTPRequestHandler):
+FILE = 'index.html'
+PORT = 8080
+
+
+class TestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+    """The test example handler."""
+
     def do_GET(self):
-        if self.path == '/':
-            f = open(curdir + sep + '/test.html')
+        try:
+            if self.path.endswith(".html"):
+                f = open(curdir + sep + self.path)
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(f.read())
+                f.close()
+                return
+            if self.path == "/":
+                f = open(curdir + sep + "/" + FILE)
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(f.read())
+                f.close()
+                return
             
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(f.read())
-            f.close()
+        except IOError:
+            self.send_error(404, "File Not Found: %s" % self.path)
 
-        return
+def open_browser():
+    """Start a browser after waiting for half a second."""
+    def _open_browser():
+        webbrowser.open('http://localhost')
+    thread = threading.Timer(0.5, _open_browser)
+    thread.start()
 
-def main():
-    try:
-        server = HTTPServer(('', 80), request_handler)
-        print 'Started HTTPServer...'
-        server.serve_forever()
-    except KeyboardInterrupt:
-        print '^C received, shutting down server'
-        server.socket.close
+def start_server():
+    """Start the server."""
+    server_address = ("", PORT)
+    server = BaseHTTPServer.HTTPServer(server_address, TestHandler)
+    server.serve_forever()
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    open_browser()
+    start_server()
