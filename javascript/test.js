@@ -9,25 +9,24 @@ $(document).ready(function(){
 				console.log(data);
 				console.log($("#plug1").data("theme"));
 				if(data.charAt(0) == "1"){
-					$("#plug1").closest(".ui-collapsible").attr("data-theme", "g").find("a").first().attr("data-theme","g").removeClass(".ui-btn-up-f .ui-btn-hover-f .ui-btn-up-b").addClass(".ui-btn-up-g .ui.btn-hover-g");
-					console.log($("plug1").data("theme"));
+					$("#light1").attr("src","/images/images.png");
 				} else {
-					$("#plug1").data('theme',"f");
+					$("#light1").attr("src","/images/images2.png");
 				}
 				if(data.charAt(1) == "1"){
-					$("#plug1").data('theme','g');
+					$("#light2").attr("src","/images/images.png");
 				} else {
-					$("#plug1").data('theme','f');
+					$("#light2").attr("src","/images/images2.png");
 				}
 				if(data.charAt(2) == "1"){
-					$("#plug1").data('theme','g');
+					$("#light3").attr("src","/images/images.png");
 				} else {
-					$("#plug1").data('theme','f');
+					$("#light3").attr("src","/images/images2.png");
 				}
 				if(data.charAt(3) == "1"){
-					$("#plug1").data('theme','g');
+					$("#light4").attr("src","/images/images.png");
 				} else {
-					$("#plug1").data('theme','f');
+					$("#light4").attr("src","/images/images2.png");
 				}
 				
 			}

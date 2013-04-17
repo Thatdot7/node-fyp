@@ -11,7 +11,7 @@ def pin_translate(x):
 		'1': '3',
 		'2': '5',
 		'3': '7',
-		'4': '8'}.get(x,3)
+		'4': '11'}.get(x,3)
 
 class TestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     """The test example handler."""
