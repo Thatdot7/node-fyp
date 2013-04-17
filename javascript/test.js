@@ -1,10 +1,16 @@
-$(document).ready(function(){
+$(document).ready(function(){	
+	ajax_request("000");
 	$('.on-button, .off-button').on('click', function(){
 		var plug = $(this).data('plug').toString();
+		ajax_request(plug);
+	});
+});
+
+ajax_request = function(input){
 		$.ajax({
 			type: "POST",
 			contentType: "text/plain",
-			data: plug,
+			data: input,
 			success: function(data){
 				console.log(data);
 				console.log($("#plug1").data("theme"));
@@ -32,5 +38,4 @@ $(document).ready(function(){
 			}
 		
 		});
-	});
-});
+}
