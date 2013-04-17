@@ -1,10 +1,10 @@
 $(document).ready(function(){
-	$('.on-button').on('click', function(){
-		var plug = $(this).data('plug');
+	$('.on-button, .off-button').on('click', function(){
+		var plug = $(this).data('plug').toString();
 		$.ajax({
 			type: "POST",
 			contentType: "text/plain",
-			data: "11",
+			data: plug,
 			success: function(data){
 				console.log("Ajax Success");
 			}
