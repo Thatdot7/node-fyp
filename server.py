@@ -27,7 +27,7 @@ class TestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         else:
             GPIO_off.run_script(pin)
 
-	print GPIO_read.run_script()
+	self.wfile.write("%s" %(GPIO_read.run_script()))
 
 def start_server():
     """Start the server."""

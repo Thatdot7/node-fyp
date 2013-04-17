@@ -6,7 +6,26 @@ $(document).ready(function(){
 			contentType: "text/plain",
 			data: plug,
 			success: function(data){
-				console.log("Ajax Success");
+				if(data.charAt(0) == "1"){
+					$("#plug1").data('theme','g');
+				} else {
+					$("#plug1").data('theme','f');
+				}
+				if(data.charAt(1) == "1"){
+					$("#plug1").data('theme','g');
+				} else {
+					$("#plug1").data('theme','f');
+				}
+				if(data.charAt(2) == "1"){
+					$("#plug1").data('theme','g');
+				} else {
+					$("#plug1").data('theme','f');
+				}
+				if(data.charAt(3) == "1"){
+					$("#plug1").data('theme','g');
+				} else {
+					$("#plug1").data('theme','f');
+				}
 			}
 		
 		});
