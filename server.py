@@ -1,41 +1,70 @@
-import BaseHTTPServer
-import SimpleHTTPServer
-import json
-import GPIO_on, GPIO_off, GPIO_read
+'''
+Created on 20/04/2013
 
-FILE = 'index.html'
-PORT = 80
+@author: Moses Wan
+'''
 
-def pin_translate(x):
-	return {
-		'1': '3',
-		'2': '5',
-		'3': '7',
-		'4': '11'}.get(x,3)
+import tornado.ioloop
+import tornado.web
+import tornado.options
+import os.path
+import tornado.websocket
+from tornado.options import define, options
 
-class TestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
-    """The test example handler."""
+plug_status = "0000"
 
-    def do_POST(self):
-        length = self.headers.getheader('content-length')
-        data = self.rfile.read(int(length))
-		
-	pin = pin_translate(data[1])
-	
-	if data[2] == '1':
-                if data[0] == '1':
-                    GPIO_on.run_script(pin)
-                else:
-                    GPIO_off.run_script(pin)
+define("port", default=8888, help="run on the given port", type=int)
 
-	self.wfile.write("%s" %(GPIO_read.run_script()))
+class Application(tornado.web.Application):
+    def __init__(self):
+        handlers = [
+            (r"/", MainHandler),
+            (r"/ws", WebSocketHandler)
+        ]
+        
+        settings = dict(
+            template_path=os.path.join(os.path.dirname(__file__), "templates"),
+            static_path=os.path.join(os.path.dirname(__file__), "static"),
+        )
+        
+        tornado.web.Application.__init__(self, handlers, **settings)
 
-def start_server():
-    """Start the server."""
-    server_address = ("", PORT)
-    server = BaseHTTPServer.HTTPServer(server_address, TestHandler)
-    server.serve_forever()
+class MainHandler(tornado.web.RequestHandler):
+    def get(self):
+        plugs = [["plug1","Plug 1", "light1", "11"],
+                ["plug2","Plug 2", "light2", "12"],
+                ["plug3", "Plug 3", "light3", "13"],
+                ["plug4", "Plug 4", "light4", "14"]]
+        self.render("index.html",
+                    plugs=plugs)
+        
+class WebSocketHandler(tornado.websocket.WebSocketHandler):
+    connections = []
+    def open(self):
+        self.connections.append(self)
+        self.write_message(plug_status)
+        
+    def on_message(self, message):
+        print "Message Received: %s" %message
+        
+        if message[0] == "1":
+            global plug_status
+            plug_status = plug_status + plug_status[:(int(message[1])-1)] + message[2] + plug_status[(int(message[1])):]
+            plug_status = plug_status[4:]
+            print plug_status
+            
+        for connections in self.connections:
+            connections.write_message(plug_status)
+        
+    def on_close(self):
+        print "WebSocket closed"
+
+def main():
+    tornado.options.parse_command_line()
+    application = Application()
+    application.listen(options.port)
+    tornado.ioloop.IOLoop.instance().start()
 
 if __name__ == "__main__":
-    print "The server has been started on http://localhost:%s" %PORT
-    start_server()
+    main()
+    
