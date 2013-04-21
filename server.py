@@ -9,9 +9,13 @@ import tornado.web
 import tornado.options
 import os.path
 import tornado.websocket
+from crontab import CronTab
 from tornado.options import define, options
 
 plug_status = "0000"
+cron = CronTab()
+
+job_list = []
 
 define("port", default=8888, help="run on the given port", type=int)
 
@@ -67,6 +71,10 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
 class ScheduleHandler(tornado.web.RequestHandler):
     def get(self):
+        schedule_list = cron.find_command("sudo python")
+        for jobs in schedule_list:
+            job_list.append(jobs.render())
+        print job_list
         self.render("schedule.html")
 
 def main():
