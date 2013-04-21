@@ -19,7 +19,8 @@ class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
             (r"/", MainHandler),
-            (r"/ws", WebSocketHandler)
+            (r"/ws", WebSocketHandler),
+            (r"/schedule", ScheduleHandler),
         ]
         
         settings = dict(
@@ -35,14 +36,17 @@ class MainHandler(tornado.web.RequestHandler):
                 ["plug2","Plug 2", "light2", "12"],
                 ["plug3", "Plug 3", "light3", "13"],
                 ["plug4", "Plug 4", "light4", "14"]]
+
         self.render("index.html",
                     plugs=plugs)
+
         
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
     connections = []
     def open(self):
         self.connections.append(self)
         self.write_message(plug_status)
+        print "WebSocket opened"
         
     def on_message(self, message):
         print "Message Received: %s" %message
@@ -57,7 +61,13 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             connections.write_message(plug_status)
         
     def on_close(self):
-        print "WebSocket closed"
+        self.connections.remove(self)
+        print "WebSocket closed:"
+        print self.connections
+
+class ScheduleHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render("schedule.html")
 
 def main():
     tornado.options.parse_command_line()
