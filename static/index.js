@@ -1,11 +1,3 @@
-$(document).ready(function(){	
-	SocketHandler.start();
-	$(".on-button, .off-button").on('click', function(){
-		var message = $(this).data("plug");
-		SocketHandler.socket.send(message);
-	});
-});
-
 var SocketHandler = {
 	socket: null,
 	
@@ -41,3 +33,12 @@ var SocketHandler = {
 		}
 	}
 }
+
+$(document).ready(function(){	
+	SocketHandler.start();
+	$(".on-button, .off-button").on('click', function(){
+		var message = $(this).data("plug");
+		SocketHandler.socket.send(message);
+	});
+});
+

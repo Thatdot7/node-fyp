@@ -71,10 +71,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
 class ScheduleHandler(tornado.web.RequestHandler):
     def get(self):
-        schedule_list = cron.find_command("sudo python")
-        for jobs in schedule_list:
-            job_list.append(jobs.render())
-        print job_list
         self.render("schedule.html")
 
 def main():
