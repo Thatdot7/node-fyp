@@ -9,7 +9,11 @@ import tornado.web
 import tornado.options
 import os.path
 import tornado.websocket
+
+import subprocess
+import sqlite3
 from crontab import CronTab
+
 from tornado.options import define, options
 
 plug_status = "0000"
@@ -18,6 +22,47 @@ cron = CronTab()
 job_list = []
 
 define("port", default=8888, help="run on the given port", type=int)
+
+class databaseHandler:
+    def __init__(self):
+        self.db_connection = sqlite3.connect('at_jobs.db')
+        self.cur = self.db_connection.cursor()
+        self.cur.execute('CREATE TABLE IF NOT EXISTS jobs (Id INT, state TEXT, hour INT, minute INT)')
+    def insert(self, state, hour, minute):
+        subprocess.call("echo On | at %d%d" %(hour, minute), shell=True)
+        job_ids = at_get()
+        id = max(job_ids)
+        self.cur.execute("INSERT INTO jobs VALUES(%d, '%s', %d, %d)" %(int(id), state, hour, minute))
+        self.db_connection.commit()
+    def clean(self):
+        job_ids = at_get()
+        if not job_ids:
+            self.cur.execute('DROP TABLE IF EXISTS jobs')
+            self.cur.execute('CREATE TABLE IF NOT EXISTS jobs (Id INT, state TEXT, hour INT, minute INT)')
+            self.cur.execute("SELECT * FROM jobs")
+            self.db_connection.commit()
+        else:
+            self.cur.execute('CREATE TEMPORARY TABLE clean (Id INT, state TEXT, hour INT, minute INT)')
+            for id in job_ids:
+                self.cur.execute('INSERT INTO clean SELECT * FROM jobs WHERE Id = %d' %(int(id)))
+                                 
+            self.cur.execute('DROP TABLE jobs')
+            self.cur.execute('CREATE TABLE IF NOT EXISTS jobs AS SELECT * FROM clean')
+            self.cur.execute('DROP TABLE clean')
+            self.cur.execute("SELECT * FROM jobs")
+            self.db_connection.commit()
+    def close(self):
+            self.db_connection.close()
+            del self
+            
+def at_get():
+    output = subprocess.check_output("atq")
+    output = output.split('\n')
+    output.pop()
+    for index in range(len(output)):
+        output[index] = output[index].split('\t')
+        output[index] = int(output[index][0])
+    return output
 
 class Application(tornado.web.Application):
     def __init__(self):
@@ -81,4 +126,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
     
