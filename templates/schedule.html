@@ -24,26 +24,18 @@
 			<div id="at_job" data-role="collapsible" data-theme="b" data-content-theme="d" data-collapsed-icon="arrow-d" data-expanded-icon="arrow-u">
 				<h1>Once-off Tasks</h1>
 				<ul data-role="listview" data-split-icon="delete" data-split-theme="d">
-					<li><a href="#">
-						<h2>Test</h2>
-						<p>More test text</p></a>
-						<a href="#"></a>
+					{% for at_job in at_jobs %}
+					<li id="at_{{ at_job[0] }}"><a href="#">
+						<h2>{{ str(at_job[1]) }}</h2>
+						<p>Id: {{ at_job[0] }}</p>
+						<p>Plug 1: {% if at_job[2][0] == "1"%}On{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
+						Plug 2: {% if at_job[2][1] == "1"%}On{% else %}Off{% end %}</p>
+						<p>Plug 3: {% if at_job[2][2] == "1"%}On{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
+						Plug 4: {% if at_job[2][3] == "1"%}On{% else %}Off{% end %}</p>
+						<p>Scheduled for {{ at_job[3] }}:{{ at_job[4] }}</p></a>
+						<a href="#" data-id={{ at_job[0] }} class="at_delete"></a>
 					</li>
-					<li><a href="#">
-						<h2>Test</h2>
-						<p>More test text</p></a>
-						<a href="#"></a>
-					</li>
-					<li><a href="#">
-						<h2>Test</h2>
-						<p>More test text</p></a>
-						<a href="#"></a>
-					</li>
-					<li><a href="#">
-						<h2>Test</h2>
-						<p>More test text</p></a>
-						<a href="#"></a>
-					</li>
+					{% end %}
 				</ul>
 			</div>
 			<div id="cron_job" data-role="collapsible" data-theme="b" data-content-theme="d" data-collapsed-icon="arrow-d" data-expanded-icon="arrow-u">
@@ -60,13 +52,21 @@
 			<div data-role="content" data-theme="d">
 				<form>
 				    <div>
-				    	<fieldset data-role="controlgroup" data-type="horizontal">
+				    	<div>
+						    <label for="text-1">Name:</label>
+					     	<input name="name" id="text-1" value="" type="text">
+						</div>
+						<fieldset data-role="controlgroup" data-type="horizontal">
 				    		<legend>Switch State:</legend>
-				    		<input name="switch" id="on" checked="checked" type="radio">
-							<label for="on">On</label>
-							<input name="switch" id="off" type="radio">
-							<label for="off">Off</label>
-						</fieldset> 
+				    		<input name="plug1" id="plug1" type="checkbox">
+							<label for="plug1">1</label>
+							<input name="plug2" id="plug2" type="checkbox">
+							<label for="plug2">2</label>
+							<input name="plug3" id="plug3" type="checkbox">
+							<label for="plug3">3</label>
+							<input name="plug4" id="plug4" type="checkbox">
+							<label for="plug4">4</label>
+						</fieldset>
 					    <fieldset data-role="controlgroup" data-type="horizontal">
 						    <legend>Time (in 24 hour):</legend>
 						    <label for="hours">Hour</label>
@@ -169,10 +169,6 @@
         					<label for="repeat">Repeat on given days</label>
         				</fieldset>
        					<div id="days_repeat">
-	       					<div>
-						         <label for="text-1">Name:</label>
-						         <input name="name" id="text-1" value="" type="text">
-						    </div>
 	        				<fieldset data-role="controlgroup">
 							        <legend>Days of Repetition:</legend>
 							        <input name="monday" id="monday" type="checkbox">

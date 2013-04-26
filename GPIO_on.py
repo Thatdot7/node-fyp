@@ -9,14 +9,16 @@ import sys
 #####################################################################################################################
 
 
-def run_script(pin):
+def run_script(pins):
 	GPIO.setwarnings(False)
 	GPIO.setmode(GPIO.BOARD)
-	GPIO.setup(int(pin), GPIO.OUT)
-	GPIO.output(int(pin), GPIO.HIGH)
 
-	print "Pin " + pin + " is now high"
+	for pin in pins:
+		GPIO.setup(int(pin), GPIO.OUT)
+		GPIO.output(int(pin), GPIO.HIGH)
+
+		print "Pin " + pin + " is now high"
 
 if __name__ == "__main__":
-	run_script(sys.argv[1])
+	run_script(sys.argv[1:])
 

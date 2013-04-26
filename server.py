@@ -27,22 +27,31 @@ class databaseHandler:
     def __init__(self):
         self.db_connection = sqlite3.connect('at_jobs.db')
         self.cur = self.db_connection.cursor()
-        self.cur.execute('CREATE TABLE IF NOT EXISTS jobs (Id INT, state TEXT, hour INT, minute INT)')
-    def insert(self, state, hour, minute):
+        self.cur.execute('CREATE TABLE IF NOT EXISTS jobs (Id INT, name TEXT, state TEXT, hour INT, minute INT)')
+    def get_table(self):
+        self.cur.execute("SELECT * FROM jobs")
+        data = self.cur.fetchall()
+        return data
+    def insert(self, name, state, hour, minute):
         subprocess.call("echo On | at %d%d" %(hour, minute), shell=True)
         job_ids = at_get()
         id = max(job_ids)
-        self.cur.execute("INSERT INTO jobs VALUES(%d, '%s', %d, %d)" %(int(id), state, hour, minute))
+        self.cur.execute("INSERT INTO jobs VALUES(%d,'%s','%s', %d, %d)" %(int(id), name, state, hour, minute))
+        self.db_connection.commit()
+        return id
+    def delete(self, Id):
+        subprocess.call("atrm %d" %(Id), shell=True)
+        self.cur.execute("DELETE FROM jobs WHERE Id = %d" %(Id))
         self.db_connection.commit()
     def clean(self):
         job_ids = at_get()
         if not job_ids:
             self.cur.execute('DROP TABLE IF EXISTS jobs')
-            self.cur.execute('CREATE TABLE IF NOT EXISTS jobs (Id INT, state TEXT, hour INT, minute INT)')
+            self.cur.execute('CREATE TABLE IF NOT EXISTS jobs (Id INT, name TEXT, state TEXT, hour INT, minute INT)')
             self.cur.execute("SELECT * FROM jobs")
             self.db_connection.commit()
         else:
-            self.cur.execute('CREATE TEMPORARY TABLE clean (Id INT, state TEXT, hour INT, minute INT)')
+            self.cur.execute('CREATE TEMPORARY TABLE clean (Id INT, name TEXT, state TEXT, hour INT, minute INT)')
             for id in job_ids:
                 self.cur.execute('INSERT INTO clean SELECT * FROM jobs WHERE Id = %d' %(int(id)))
                                  
@@ -70,6 +79,7 @@ class Application(tornado.web.Application):
             (r"/", MainHandler),
             (r"/ws", WebSocketHandler),
             (r"/schedule", ScheduleHandler),
+            (r"/ws_schedule", WebSocketScheduleHandler),
         ]
         
         settings = dict(
@@ -116,7 +126,35 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
 class ScheduleHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render("schedule.html")
+        at_jobs = databaseHandler()
+        jobs = at_jobs.get_table()
+        at_jobs.close()
+        print jobs[0][2]
+        self.render("schedule.html", at_jobs = jobs)
+
+class WebSocketScheduleHandler(tornado.websocket.WebSocketHandler):
+    connections = []
+    def open(self):
+        self.connections.append(self)
+        print "WebSocket opened"
+        
+    def on_message(self, message):
+        print "Message Received: %s" %message
+        
+        if message[0] == "1":
+            at = databaseHandler()
+            at.delete(int(message[1:]))
+            at.close()
+            
+        
+        for connection in self.connections:
+            connection.write_message(message)
+        
+    def on_close(self):
+        self.connections.remove(self)
+        print "WebSocket closed:"
+        print self.connections
+
 
 def main():
     tornado.options.parse_command_line()
@@ -125,6 +163,8 @@ def main():
     tornado.ioloop.IOLoop.instance().start()
 
 if __name__ == "__main__":
+    test = databaseHandler()
+    test.insert("Test Task", '0100', 10, 50)
+    test.clean()
+    test.close()
     main()
-    
-    
