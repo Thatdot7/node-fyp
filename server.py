@@ -27,33 +27,33 @@ class databaseHandler:
     def __init__(self):
         self.db_connection = sqlite3.connect('at_jobs.db')
         self.cur = self.db_connection.cursor()
-        self.cur.execute('CREATE TABLE IF NOT EXISTS jobs (Id INT, name TEXT, state TEXT, hour INT, minute INT)')
+        self.cur.execute('CREATE TABLE IF NOT EXISTS jobs (Id TEXT, name TEXT, state TEXT, hour TEXT, minute TEXT)')
     def get_table(self):
         self.cur.execute("SELECT * FROM jobs")
         data = self.cur.fetchall()
         return data
     def insert(self, name, state, hour, minute):
-        subprocess.call("echo On | at %d%d" %(hour, minute), shell=True)
+        subprocess.call("echo On | at %s:%s" %(hour, minute), shell=True)
         job_ids = at_get()
         id = max(job_ids)
-        self.cur.execute("INSERT INTO jobs VALUES(%d,'%s','%s', %d, %d)" %(int(id), name, state, hour, minute))
+        self.cur.execute("INSERT INTO jobs VALUES('%s','%s','%s', '%s', '%s')" %(id, name, state, hour, minute))
         self.db_connection.commit()
         return id
     def delete(self, Id):
         subprocess.call("atrm %d" %(Id), shell=True)
-        self.cur.execute("DELETE FROM jobs WHERE Id = %d" %(Id))
+        self.cur.execute("DELETE FROM jobs WHERE Id = %s" %(Id))
         self.db_connection.commit()
     def clean(self):
         job_ids = at_get()
         if not job_ids:
             self.cur.execute('DROP TABLE IF EXISTS jobs')
-            self.cur.execute('CREATE TABLE IF NOT EXISTS jobs (Id INT, name TEXT, state TEXT, hour INT, minute INT)')
+            self.cur.execute('CREATE TABLE IF NOT EXISTS jobs (Id TEXT, name TEXT, state TEXT, hour TEXT, minute TEXT)')
             self.cur.execute("SELECT * FROM jobs")
             self.db_connection.commit()
         else:
-            self.cur.execute('CREATE TEMPORARY TABLE clean (Id INT, name TEXT, state TEXT, hour INT, minute INT)')
+            self.cur.execute('CREATE TEMPORARY TABLE clean (Id TEXT, name TEXT, state TEXT, hour TEXT, minute TEXT)')
             for id in job_ids:
-                self.cur.execute('INSERT INTO clean SELECT * FROM jobs WHERE Id = %d' %(int(id)))
+                self.cur.execute('INSERT INTO clean SELECT * FROM jobs WHERE Id = %s' %(id))
                                  
             self.cur.execute('DROP TABLE jobs')
             self.cur.execute('CREATE TABLE IF NOT EXISTS jobs AS SELECT * FROM clean')
@@ -129,7 +129,6 @@ class ScheduleHandler(tornado.web.RequestHandler):
         at_jobs = databaseHandler()
         jobs = at_jobs.get_table()
         at_jobs.close()
-        print jobs[0][2]
         self.render("schedule.html", at_jobs = jobs)
 
 class WebSocketScheduleHandler(tornado.websocket.WebSocketHandler):
@@ -140,6 +139,12 @@ class WebSocketScheduleHandler(tornado.websocket.WebSocketHandler):
         
     def on_message(self, message):
         print "Message Received: %s" %message
+        
+        if message[0] == "0":
+            at = databaseHandler()
+            id = at.insert(message[9:],message[1:5], message[5:7], message[7:9])
+            at.close()
+            message = message + "%&^" + str(id)
         
         if message[0] == "1":
             at = databaseHandler()
@@ -164,7 +169,6 @@ def main():
 
 if __name__ == "__main__":
     test = databaseHandler()
-    test.insert("Test Task", '0100', 10, 50)
     test.clean()
     test.close()
     main()

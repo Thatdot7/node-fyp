@@ -23,7 +23,7 @@
 			<a href="#popupDialog" data-role="button" data-rel="popup" data-theme="e" data-icon="plus">Add</a>
 			<div id="at_job" data-role="collapsible" data-theme="b" data-content-theme="d" data-collapsed-icon="arrow-d" data-expanded-icon="arrow-u">
 				<h1>Once-off Tasks</h1>
-				<ul data-role="listview" data-split-icon="delete" data-split-theme="d">
+				<ul data-role="listview" data-split-icon="delete" data-split-theme="d" id="at_list">
 					{% for at_job in at_jobs %}
 					<li id="at_{{ at_job[0] }}"><a href="#">
 						<h2>{{ str(at_job[1]) }}</h2>
@@ -98,16 +98,16 @@
 						    </select>
 						    <label for="minutes">Minutes</label>
 						    <select name="minutes" id="minutes">
-						        <option value="0">0</option>
-						        <option value="1">1</option>
-						        <option value="2">2</option>
-						        <option value="3">3</option>
-						        <option value="4">4</option>
-						        <option value="5">5</option>
-						        <option value="6">6</option>
-						        <option value="7">7</option>
-						        <option value="8">8</option>
-						        <option value="9">9</option>
+						        <option value="0">00</option>
+						        <option value="1">01</option>
+						        <option value="2">02</option>
+						        <option value="3">03</option>
+						        <option value="4">04</option>
+						        <option value="5">05</option>
+						        <option value="6">06</option>
+						        <option value="7">07</option>
+						        <option value="8">08</option>
+						        <option value="9">09</option>
 						        <option value="10">10</option>
 						        <option value="11">11</option>
 						        <option value="12">12</option>
@@ -187,7 +187,7 @@
 							        <label for="sunday">Sunday</label>
 							</fieldset>
 						</div>
-						<a href="#" data-role="button" data-theme="b" data-icon="plug">Save</a>
+						<a href="#" data-role="button" data-theme="b" data-icon="plug" id="save">Save</a>
 						    
 					</div>
 				</form>
