@@ -16,6 +16,8 @@ from crontab import CronTab
 
 from tornado.options import define, options
 
+#import GPIO_handler, GPIO_on, GPIO_off
+
 plug_status = "0000"
 cron = CronTab()
 
@@ -33,7 +35,7 @@ class databaseHandler:
         data = self.cur.fetchall()
         return data
     def insert(self, name, state, hour, minute):
-        subprocess.call("echo On | at %s:%s" %(hour, minute), shell=True)
+        subprocess.call("echo python ~/node-fyp/GPIO_handler.py %s| at %s:%s" %(state, hour, minute), shell=True)
         job_ids = at_get()
         id = max(job_ids)
         self.cur.execute("INSERT INTO jobs VALUES('%s','%s','%s', '%s', '%s')" %(id, name, state, hour, minute))
@@ -116,6 +118,13 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             plug_status = plug_status[4:]
             print plug_status
             
+#             if message[2] == "1":
+#                 GPIO_on.run_script(message[1])
+#             else:
+#                 GPIO_off.run_script(message[1])
+#             
+#             plug_status = GPIO_handler.read()
+            
         for connections in self.connections:
             connections.write_message(plug_status)
         
@@ -151,6 +160,12 @@ class WebSocketScheduleHandler(tornado.websocket.WebSocketHandler):
             at.delete(int(message[1:]))
             at.close()
             
+        if message[0] == "2":
+            cron.remove(message[1:])
+            cron.write()
+            
+        if message[0] == "3":
+            cron.new("")
         
         for connection in self.connections:
             connection.write_message(message)
