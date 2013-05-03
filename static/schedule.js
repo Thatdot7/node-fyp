@@ -62,6 +62,7 @@ var SocketHandler = {
 
 $(document).ready(function() {
 	SocketHandler.start();
+	console.log("Javascript reloaded");
 	$("#repeat").on('click', function() {
 		$("#days_repeat").show();
 		console.log("Repeat Clicked");
@@ -105,6 +106,16 @@ $(document).ready(function() {
 		minutes = ("0" + minutes).slice(-2);
 		SocketHandler.socket.send("0"+plugs+hours+minutes+name)
 		$('#popupDialog').hide();
+	});
+	$("#show_dialog").on('click', function(){
+		$('#popupDialog').show();
+	});
+	$("#nav-bar").on('click', function(){
+		if (!($(this).hasClass("ui-state-persist"))){
+			SocketHandler.socket.close();
+			console.log("webpage closing");
+			
+		}
 	});
 });
 

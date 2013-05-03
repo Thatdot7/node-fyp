@@ -79,6 +79,7 @@ class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
             (r"/", MainHandler),
+            (r"/control", MainHandler),
             (r"/ws", WebSocketHandler),
             (r"/schedule", ScheduleHandler),
             (r"/ws_schedule", WebSocketScheduleHandler),
