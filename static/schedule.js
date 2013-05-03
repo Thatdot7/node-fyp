@@ -157,5 +157,8 @@ $(document).ready(function() {
 			
 		}
 	});
+	$("#debug").on('click', function(){
+		SocketHandler.socket.send("debug1")
+	});
 });
 

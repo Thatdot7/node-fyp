@@ -15,7 +15,7 @@ import sqlite3
 from crontab import CronTab
 
 from tornado.options import define, options
-
+import re
 #import GPIO_handler, GPIO_on, GPIO_off
 
 plug_status = "0000"
@@ -140,6 +140,7 @@ class ScheduleHandler(tornado.web.RequestHandler):
         at_jobs = databaseHandler()
         jobs = at_jobs.get_table()
         at_jobs.close()
+        
         self.render("schedule.html", at_jobs = jobs)
 
 class WebSocketScheduleHandler(tornado.websocket.WebSocketHandler):
@@ -172,10 +173,22 @@ class WebSocketScheduleHandler(tornado.websocket.WebSocketHandler):
             job.minute.on(int(message[7:9]))
             job.hour.on(int(message[5:7]))
             
+            dow_info = message[9:16]
             dow = []
-            for index in range(len(message[9:16])):
+            for index in range(len(dow_info)):
+                if dow_info[index] == "1":
+                    job.dow.on(index)
+            
+        if message == 'debug1':
+            list = cron.find_command("sudo python ~/node-fyp/GPIO_handler.py")
+            for index in range(len(list)):
+                list[index] = list[index].render()
+                list[index] = list[index].split(' # ')
+                list[index][0] = list[index][0].split(' ', 5)
+                list[index][0][4] = list[index][0][4].split(',')
                 
-        
+            print list[0][0][4]
+            
         for connection in self.connections:
             connection.write_message(message)
         
