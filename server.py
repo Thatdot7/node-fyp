@@ -35,7 +35,8 @@ class databaseHandler:
         data = self.cur.fetchall()
         return data
     def insert(self, name, state, hour, minute):
-        subprocess.call("echo python ~/node-fyp/GPIO_handler.py %s| at %s:%s" %(state, hour, minute), shell=True)
+        command = 'echo "sudo python /home/pi/GPIO_handler.py %s | at %s:%s' %(state, hour, minute)
+        subprocess.call(command, shell=True)
         job_ids = at_get()
         id = max(job_ids)
         self.cur.execute("INSERT INTO jobs VALUES('%s','%s','%s', '%s', '%s')" %(id, name, state, hour, minute))
@@ -166,7 +167,14 @@ class WebSocketScheduleHandler(tornado.websocket.WebSocketHandler):
             cron.write()
             
         if message[0] == "3":
-            cron.new("")
+            command_line = "sudo python ~/node-fyp/GPIO_handler.py %s" %(message[1:5])
+            job = cron.new(command=command_line, comment=message[16:])
+            job.minute.on(int(message[7:9]))
+            job.hour.on(int(message[5:7]))
+            
+            dow = []
+            for index in range(len(message[9:16])):
+                
         
         for connection in self.connections:
             connection.write_message(message)

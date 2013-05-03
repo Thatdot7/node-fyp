@@ -104,7 +104,47 @@ $(document).ready(function() {
 		var minutes = $("#minutes").val();
 		hours = ("0" + hours).slice(-2);
 		minutes = ("0" + minutes).slice(-2);
-		SocketHandler.socket.send("0"+plugs+hours+minutes+name)
+		if ($('#repeat').is(':checked')){
+				dow = new String();
+				if ($('#sunday').is(':checked')){
+					dow = dow + "1";
+				} else {
+					dow = dow + "0";
+				}
+				if ($('#monday').is(':checked')){
+					dow = dow + "1";
+				} else {
+					dow = dow + "0";
+				}
+				if ($('#tuesday').is(':checked')){
+					dow = dow + "1";
+				} else {
+					dow = dow + "0";
+				}
+				if ($('#wednesday').is(':checked')){
+					dow = dow + "1";
+				} else {
+					dow = dow + "0";
+				}
+				if ($('#thursday').is(':checked')){
+					dow = dow + "1";
+				} else {
+					dow = dow + "0";
+				}
+				if ($('#friday').is(':checked')){
+					dow = dow + "1";
+				} else {
+					dow = dow + "0";
+				}
+				if ($('#saturday').is(':checked')){
+					dow = dow + "1";
+				} else {
+					dow = dow + "0";
+				}
+			SocketHandler.socket.send("3"+plugs+hours+minutes+dow+name);
+		} else {
+			SocketHandler.socket.send("0"+plugs+hours+minutes+name)
+		}
 		$('#popupDialog').hide();
 	});
 	$("#show_dialog").on('click', function(){
