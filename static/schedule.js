@@ -9,41 +9,51 @@ var SocketHandler = {
 			SocketHandler.socket = new MozWebSocket(url);
 		}
 		SocketHandler.socket.onmessage = function(event) {
-			var data = event.data;
-			if(data.charAt(0) == "1"){
-				id_tag = "#at_" + data.substring(1);
+			var data = JSON.parse(event.data);
+			if(data.method == "1"){
+				id_tag = "#at_" + data.id;
 				$(id_tag).remove();
+				return;
 			}
 			
-			if(data.charAt(0) == "0"){
-				data = data.split("%&^");
-				console.log(data);
-				id = data[1];
-				data = data[0];
-				if (data.charAt(1) == "0"){
-					var plugs1 = "Off";
-				} else {
-					var plugs1 = "On";
-				}
-				if (data.charAt(2) == "0"){
-					var plugs2 = "Off";
-				} else {
-					var plugs2 = "On";
-				}
-				if (data.charAt(3) == "0"){
-					var plugs3 = "Off";
-				} else {
-					var plugs3 = "On";
-				}
-				if (data.charAt(4) == "0"){
-					var plugs4 = "Off";
-				} else {
-					var plugs4 = "On";
-				}
-				var hours = data.substr(5,2);
-				var minutes = data.substr(7,2);
-				var name = data.substr(9);
-				var node = '<li id="at_' + id + '"><a href="#">'+
+			if(data.method == "2"){
+				id_tag = ".cron_" + data.name;
+				console.log(id_tag);
+				$(id_tag).remove();
+				return;
+			}
+				
+			plugs = data.plugs;
+			if (plugs.charAt(0) == "0"){
+				var plugs1 = "Off";
+			} else {
+				var plugs1 = "On";
+			}
+			if (plugs.charAt(1) == "0"){
+				var plugs2 = "Off";
+			} else {
+				var plugs2 = "On";
+			}
+			if (plugs.charAt(2) == "0"){
+				var plugs3 = "Off";
+			} else {
+				var plugs3 = "On";
+			}
+			if (plugs.charAt(3) == "0"){
+				var plugs4 = "Off";
+			} else {
+				var plugs4 = "On";
+			}
+			var hours = data.hours;
+			var minutes = data.minutes;
+			var name = data.name;
+			while (name.indexOf("_") > -1) {
+				name = name.replace("_", " ");
+			}
+				
+			if(data.method == "0"){
+				id = data.id;
+				var node = '<li class="at_' + id + '"><a href="#">'+
 								'<h2>' + name + '</h2>'+
 								'<p>Id: ' + id + '</p>' +
 								'<p>Plug 1: '+ plugs1 +'&nbsp&nbsp&nbsp&nbsp&nbsp' +
@@ -56,6 +66,40 @@ var SocketHandler = {
 				$('#at_list').prepend(node).listview('refresh');
 			}
 			
+			if(data.method == "3"){
+				dow = new String();
+				if (data.dow.charAt(0) == "1"){
+					dow = dow + ' Sun';
+				}
+				if (data.dow.charAt(1) == "1"){
+					dow = dow + ' Mon';
+				}
+				if (data.dow.charAt(2) == "1"){
+					dow = dow + ' Tue';
+				}
+				if (data.dow.charAt(3) == "1"){
+					dow = dow + ' Wed';
+				}
+				if (data.dow.charAt(4) == "1"){
+					dow = dow + ' Thu';
+				}
+				if (data.dow.charAt(5) == "1"){
+					dow = dow + ' Fri';
+				}
+				if (data.dow.charAt(6) == "1"){
+					dow = dow + ' Sat';
+				}
+				var node = '<li class="cron_' + data.name +'"><a href="#">' +
+						'<h2>'+ name +'</h2>' +
+						'<p>Plug 1: '+ plugs1 +'&nbsp&nbsp&nbsp&nbsp&nbsp' +
+						'Plug 2: '+ plugs2 +'</p>' +
+						'<p>Plug 3: '+ plugs3 +'&nbsp&nbsp&nbsp&nbsp&nbsp' +
+						'Plug 4: '+ plugs4 +'</p>' +
+						'<p>Scheduled for '+ hours +':'+ minutes +'</p>' +
+						'<p>Repeat on:'+ dow +'</p></a>' +
+						'<a href="#" data-id=' + data.name + ' class="cron_delete"></a>';
+				$('#cron_list').prepend(node).listview('refresh');
+			}
 		}
 	}
 }
@@ -73,12 +117,19 @@ $(document).ready(function() {
 	});
 	$("#at_list").on('click', '.at_delete', function() {
 		id = $(this).data("id");
-		message_string = "1" + id;
-		console.log(message_string);
-		SocketHandler.socket.send(message_string);
+		var message_json = {"method" : "1",
+				"id":id};
+		SocketHandler.socket.send(JSON.stringify(message_json));
+	});
+	$("#cron_list").on('click', '.cron_delete', function() {
+		id = $(this).data("id");
+		var message_json = {"method" : "2",
+				"name":id};
+		SocketHandler.socket.send(JSON.stringify(message_json));
 	});
 	$("#save").on('click', function() {
 		var name = $("#text-1").val();
+		name = name.replace(/[^\w\s.-:]/gi,"");
 		plugs = new String();
 		if ($('#plug1').is(':checked')){
 			plugs = plugs + "1";
@@ -141,9 +192,22 @@ $(document).ready(function() {
 				} else {
 					dow = dow + "0";
 				}
-			SocketHandler.socket.send("3"+plugs+hours+minutes+dow+name);
+				
+			var message_json = {"method" : "3",
+					"plugs" : plugs,
+					"hours" : hours, 
+					"minutes" : minutes,
+					"dow" : dow,
+					"name" : name};
+			SocketHandler.socket.send(JSON.stringify(message_json));
+			//SocketHandler.socket.send("3"+plugs+hours+minutes+dow+name);
 		} else {
-			SocketHandler.socket.send("0"+plugs+hours+minutes+name)
+			var message_json = {"method" : "0",
+					"plugs" : plugs,
+					"hours" : hours, 
+					"minutes" : minutes,
+					"name" : name};
+			SocketHandler.socket.send(JSON.stringify(message_json))
 		}
 		$('#popupDialog').hide();
 	});

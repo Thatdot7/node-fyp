@@ -16,6 +16,7 @@ from crontab import CronTab
 
 from tornado.options import define, options
 import re
+import json
 #import GPIO_handler, GPIO_on, GPIO_off
 
 plug_status = "0000"
@@ -30,12 +31,13 @@ class databaseHandler:
         self.db_connection = sqlite3.connect('at_jobs.db')
         self.cur = self.db_connection.cursor()
         self.cur.execute('CREATE TABLE IF NOT EXISTS jobs (Id TEXT, name TEXT, state TEXT, hour TEXT, minute TEXT)')
+        self.clean()
     def get_table(self):
         self.cur.execute("SELECT * FROM jobs")
         data = self.cur.fetchall()
         return data
     def insert(self, name, state, hour, minute):
-        command = 'echo "sudo python /home/pi/GPIO_handler.py %s | at %s:%s' %(state, hour, minute)
+        command = 'echo "sudo python /home/pi/GPIO_handler.py %s" | at %s:%s' %(state, hour, minute)
         subprocess.call(command, shell=True)
         job_ids = at_get()
         id = max(job_ids)
@@ -140,57 +142,64 @@ class ScheduleHandler(tornado.web.RequestHandler):
         at_jobs = databaseHandler()
         jobs = at_jobs.get_table()
         at_jobs.close()
-        
-        self.render("schedule.html", at_jobs = jobs)
+        list = cron.find_command("sudo python /home/pi/node-fyp/GPIO_handler.py")
+        for index in range(len(list)):
+            list[index] = list[index].render()
+            list[index] = list[index].split(' # ')
+            list[index][0] = list[index][0].split(' ', 5)
+            list[index][0][0] = ("0" + list[index][0][0])[:2]
+            list[index][0][1] = ("0" + list[index][0][1])[:2]
+            list[index][0][4] = list[index][0][4].split(',')
+            list[index][0][5] = list[index][0][5][46:]
+        print list
+        self.render("schedule.html", at_jobs = jobs, cron_list = list)
 
 class WebSocketScheduleHandler(tornado.websocket.WebSocketHandler):
     connections = []
     def open(self):
         self.connections.append(self)
         print "WebSocket opened"
+        print self.connections
         
     def on_message(self, message):
-        print "Message Received: %s" %message
-        
-        if message[0] == "0":
+        data = json.loads(message)
+        if 'name' in data:
+            data["name"] = data["name"].replace(" ", "_")
+
+        if data["method"] == "0":
             at = databaseHandler()
-            id = at.insert(message[9:],message[1:5], message[5:7], message[7:9])
+            id = at.insert(data["name"],str(data["plugs"]), str(data["hours"]), str(data["minutes"]))
             at.close()
-            message = message + "%&^" + str(id)
-        
-        if message[0] == "1":
+            data["id"] = str(id)
+          
+        if data["method"] == "1":
             at = databaseHandler()
-            at.delete(int(message[1:]))
+            at.delete(data["id"])
             at.close()
-            
-        if message[0] == "2":
-            cron.remove(message[1:])
+              
+        if data["method"] == "2":
+            list = cron.find_comment(data["name"])
+            for cron_job in list:
+                cron.remove(cron_job)
             cron.write()
-            
-        if message[0] == "3":
-            command_line = "sudo python ~/node-fyp/GPIO_handler.py %s" %(message[1:5])
-            job = cron.new(command=command_line, comment=message[16:])
-            job.minute.on(int(message[7:9]))
-            job.hour.on(int(message[5:7]))
-            
-            dow_info = message[9:16]
+              
+        if data["method"] == "3":
+            command_line = "sudo python /home/pi/node-fyp/GPIO_handler.py %s" %(str(data["plugs"]))
+            job = cron.new(command=command_line, comment=data["name"])
+            job.minute.on(data["minutes"])
+            job.hour.on(data["hours"])
+              
+            dow_info = str(data["dow"])
             dow = []
             for index in range(len(dow_info)):
                 if dow_info[index] == "1":
                     job.dow.on(index)
+              
+            cron.write()
             
-        if message == 'debug1':
-            list = cron.find_command("sudo python ~/node-fyp/GPIO_handler.py")
-            for index in range(len(list)):
-                list[index] = list[index].render()
-                list[index] = list[index].split(' # ')
-                list[index][0] = list[index][0].split(' ', 5)
-                list[index][0][4] = list[index][0][4].split(',')
-                
-            print list[0][0][4]
-            
+        print data
         for connection in self.connections:
-            connection.write_message(message)
+            connection.write_message(json.dumps(data))
         
     def on_close(self):
         self.connections.remove(self)
@@ -205,7 +214,4 @@ def main():
     tornado.ioloop.IOLoop.instance().start()
 
 if __name__ == "__main__":
-    test = databaseHandler()
-    test.clean()
-    test.close()
     main()
