@@ -15,16 +15,15 @@ import sqlite3
 from crontab import CronTab
 
 from tornado.options import define, options
-import re
 import json
-#import GPIO_handler, GPIO_on, GPIO_off
+import GPIO_handler, GPIO_on, GPIO_off
 
-plug_status = "0000"
+#plug_status = "0000"
 cron = CronTab()
 
 job_list = []
 
-define("port", default=8888, help="run on the given port", type=int)
+define("port", default=80, help="run on the given port", type=int)
 
 class databaseHandler:
     def __init__(self):
@@ -37,7 +36,7 @@ class databaseHandler:
         data = self.cur.fetchall()
         return data
     def insert(self, name, state, hour, minute):
-        command = 'echo "sudo python /home/pi/GPIO_handler.py %s" | at %s:%s' %(state, hour, minute)
+        command = 'echo "sudo python /home/pi/node-fyp/GPIO_handler.py %s" | at %s:%s' %(state, hour, minute)
         subprocess.call(command, shell=True)
         job_ids = at_get()
         id = max(job_ids)
@@ -110,24 +109,24 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     connections = []
     def open(self):
         self.connections.append(self)
-        self.write_message(plug_status)
+        self.write_message(GPIO_handler.read())
         print "WebSocket opened"
         
     def on_message(self, message):
         print "Message Received: %s" %message
         
         if message[0] == "1":
-            global plug_status
-            plug_status = plug_status + plug_status[:(int(message[1])-1)] + message[2] + plug_status[(int(message[1])):]
-            plug_status = plug_status[4:]
-            print plug_status
+#            global plug_status
+#            plug_status = plug_status + plug_status[:(int(message[1])-1)] + message[2] + plug_status[(int(message[1])):]
+#            plug_status = plug_status[4:]
+#            print plug_status
             
-#             if message[2] == "1":
-#                 GPIO_on.run_script(message[1])
-#             else:
-#                 GPIO_off.run_script(message[1])
-#             
-#             plug_status = GPIO_handler.read()
+             if message[2] == "1":
+                 GPIO_on.run_script(message[1])
+             else:
+                 GPIO_off.run_script(message[1])
+             
+             plug_status = GPIO_handler.read()
             
         for connections in self.connections:
             connections.write_message(plug_status)

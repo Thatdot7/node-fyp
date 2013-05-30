@@ -14,11 +14,11 @@ def run_script(pins):
 	GPIO.setwarnings(False)
 	GPIO.setmode(GPIO.BOARD)
 
-	pin = pin_translate[int(pins)]
+	pin = pin_translate[int(pins)-1]
 	GPIO.setup(int(pin), GPIO.OUT)
 	GPIO.output(int(pin), GPIO.HIGH)
 
-	print "Pin " + pin + " is now high"
+	print "Pin " + str(pin) + " is now high"
 
 if __name__ == "__main__":
 	run_script(sys.argv[1:])

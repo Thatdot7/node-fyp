@@ -4,6 +4,9 @@ import sys
 pin_translate = [3,5,7,11]
 
 def write(pins):
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setwarnings(False)
+
     for index in range(len(pins)):
         pin = pin_translate[index]
         GPIO.setup(pin, GPIO.OUT)
@@ -13,6 +16,9 @@ def write(pins):
             GPIO.output(pin, GPIO.LOW)
 
 def read():
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setwarnings(False)
+
     GPIO.setup(21, GPIO.IN)
     GPIO.setup(22, GPIO.IN)
     GPIO.setup(23, GPIO.IN)
@@ -27,8 +33,6 @@ def read():
     return "%s%s%s%s" %(plug1, plug2, plug3, plug4)
 
 if __name__ == "__main__":
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setwarnings(False)
 
     if not sys.argv[1:]:
         read()

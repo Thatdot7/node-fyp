@@ -11,7 +11,7 @@ var SocketHandler = {
 		SocketHandler.socket.onmessage = function(event) {
 			var data = JSON.parse(event.data);
 			if(data.method == "1"){
-				id_tag = "#at_" + data.id;
+				id_tag = ".at_" + data.id;
 				$(id_tag).remove();
 				return;
 			}
