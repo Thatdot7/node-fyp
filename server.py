@@ -197,6 +197,9 @@ class WebSocketScheduleHandler(tornado.websocket.WebSocketHandler):
             cron.write()
             
         print data
+        if 'name' in data:
+            data["name"] = data["name"].replace("_", " ")
+            
         for connection in self.connections:
             connection.write_message(json.dumps(data))
         
