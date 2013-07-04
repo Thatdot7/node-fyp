@@ -16,9 +16,9 @@ from crontab import CronTab
 
 from tornado.options import define, options
 import json
-import GPIO_handler, GPIO_on, GPIO_off
+#import GPIO_handler, GPIO_on, GPIO_off
 
-#plug_status = "0000"
+plug_status = "0000"
 cron = CronTab()
 
 job_list = []
@@ -109,24 +109,25 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     connections = []
     def open(self):
         self.connections.append(self)
-        self.write_message(GPIO_handler.read())
+		#plug_status = GPIO_handler.read()
+        self.write_message(plug_status)
         print "WebSocket opened"
         
     def on_message(self, message):
         print "Message Received: %s" %message
         
         if message[0] == "1":
-#            global plug_status
-#            plug_status = plug_status + plug_status[:(int(message[1])-1)] + message[2] + plug_status[(int(message[1])):]
-#            plug_status = plug_status[4:]
-#            print plug_status
+            global plug_status
+            plug_status = plug_status + plug_status[:(int(message[1])-1)] + message[2] + plug_status[(int(message[1])):]
+            plug_status = plug_status[4:]
+            print plug_status
             
-             if message[2] == "1":
-                 GPIO_on.run_script(message[1])
-             else:
-                 GPIO_off.run_script(message[1])
+             # if message[2] == "1":
+                 # GPIO_on.run_script(message[1])
+             # else:
+                 # GPIO_off.run_script(message[1])
              
-             plug_status = GPIO_handler.read()
+             #plug_status = GPIO_handler.read()
             
         for connections in self.connections:
             connections.write_message(plug_status)

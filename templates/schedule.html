@@ -1,217 +1,306 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-	<title>Power Board Control</title>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width-device-width, initial-scale=1">
-	<link rel="stylesheet" href="{{ static_url("jquery.mobile-1.3.1.min.css") }}" />
-	<script src="{{ static_url("jquery-1.9.1.min.js") }}" ></script>
-	<script src="{{ static_url("jquery.mobile-1.3.0.min.js") }}" type="text/javascript"></script>
-</head>
-<body>
-	<div data-role="page" id="actual-page">
-		<div data-role="header" data-id="head1" data-position="fixed">
-			<h1>Power Board Control</h1>
-			<div data-role="navbar">
-				<ul id="nav-bar">
-					<li><a href="/control" rel="external" data-ajax="false">Manual Control</a></li>
-					<li><a href="#" class="ui-btn-active ui-state-persist">Scheduling</a></li>
-				</ul>
-			</div>
+	<head>
+		<meta charset="utf-8" />
+
+		<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+		Remove this if you use the .htaccess -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+		<title>Smart PowerBox: Scheduling</title>
+		<meta name="description" content="" />
+		<meta name="author" content="Moses Wan" />
+
+		<meta name="viewport" content="width=device-width; initial-scale=1.0" />
+		<link href="{{ static_url("css/bootstrap.min.css") }}" rel="stylesheet">
+        <link href="{{ static_url("css/schedule.css") }}" rel="stylesheet">
+
+		<!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+	</head>
+
+	<body>
+		<nav class="navbar navbar-inverse navbar-static-top">
+    		<div class="navbar-inner">
+    			<div class="container">
+    				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        				<span class="icon-bar"></span>
+        				<span class="icon-bar"></span>
+        				<span class="icon-bar"></span>
+      				</a>
+      				<a class="brand">Smart PowerBox</a>
+      				<div class="nav-collapse collapse">
+		    			<ul class="nav">
+			    			<li><a href="/control">Manual Control</a></li>
+			    			<li class="active"><a href="#">Scheduling</a></li>
+			    			<li><a href="#">Settings</a></li>
+		    			</ul>
+	    			</div>
+    			</div>
+    		</div>
+    	</nav>
+		<div class="alert alert-danger" id="name-error">
+			<a class="close" data-dismiss="alert">x</a>
+			The task does not seem to have a name.
 		</div>
-		<div data-role="content">
-			<a id="show_dialog" href="#popupDialog" data-role="button" data-rel="popup" data-theme="e" data-icon="plus">Add</a>
-			<div id="at_job" data-role="collapsible" data-theme="b" data-content-theme="d" data-collapsed-icon="arrow-d" data-expanded-icon="arrow-u">
-				<h1>Once-off Tasks</h1>
-				<ul data-role="listview" data-split-icon="delete" data-split-theme="d" id="at_list">
-					{% for at_job in at_jobs %}
-					<li id="at_{{ at_job[0] }}"><a href="#">
-						<h2>{{ str(at_job[1]) }}</h2>
-						<p>Id: {{ at_job[0] }}</p>
-						<p>Plug 1: {% if at_job[2][0] == "1"%}On{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
-						Plug 2: {% if at_job[2][1] == "1"%}On{% else %}Off{% end %}</p>
-						<p>Plug 3: {% if at_job[2][2] == "1"%}On{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
-						Plug 4: {% if at_job[2][3] == "1"%}On{% else %}Off{% end %}</p>
-						<p>Scheduled for {{ at_job[3] }}:{{ at_job[4] }}</p></a>
-						<a href="#" data-id={{ at_job[0] }} class="at_delete"></a>
-					</li>
-					{% end %}
-				</ul>
-			</div>
-			<div id="cron" data-role="collapsible" data-theme="b" data-content-theme="d" data-collapsed-icon="arrow-d" data-expanded-icon="arrow-u">
-				<h1>Scheduled Tasks</h1>
-				<ul data-role="listview" data-split-icon="delete" data-split-theme="d" id="cron_list">
-					{% for cron_job in cron_list %}
-					<li class="cron_{{ cron_job[1] }}"><a href="#">
-						<h2>{{ cron_job[1].replace("_"," ") }}</h2>
-						<p>Plug 1: {% if cron_job[0][5][0] == "1"%}On{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
-						Plug 2: {% if cron_job[0][5][1] == "1"%}On{% else %}Off{% end %}</p>
-						<p>Plug 3: {% if cron_job[0][5][2] == "1"%}On{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
-						Plug 4: {% if cron_job[0][5][3] == "1"%}On{% else %}Off{% end %}</p>
-						<p>Scheduled for {{ cron_job[0][1] }}:{{ cron_job[0][0] }}</p>
-						<p>Repeat on:{% for days in cron_job[0][4] %}
-							{% if days == "0"%} Sun{% end %}
-							{% if days == "1"%} Mon{% end %}
-							{% if days == "2"%} Tue{% end %}
-							{% if days == "3"%} Wed{% end %}
-							{% if days == "4"%} Thurs{% end %}
-							{% if days == "5"%} Fri{% end %}
-							{% if days == "6"%} Sat{% end %}{% end %}</p></a>
-						<a href="#" data-id={{ cron_job[1] }} class="cron_delete"></a>
-					</li>
-					{% end %}
-				</ul>
-			</div>
+		<div class="alert alert-danger" id="dow-error">
+			<a class="close" data-dismiss="alert">x</a>
+			There seems to be no days selected.
 		</div>
-		<div data-role="popup" id="popupDialog" data-dismissable="false">
-			<div data-role="header" data-theme="e">
-				<h1>New<br/>Schedule<br/>Task</h1>
-			</div>
-			<div data-role="content" data-theme="d">
-				<form>
-				    <div>
-				    	<div>
-						    <label for="text-1">Name:</label>
-					     	<input name="name" id="text-1" value="" type="text">
-						</div>
-						<fieldset data-role="controlgroup" data-type="horizontal">
-				    		<legend>Switch State:</legend>
-				    		<input name="plug1" id="plug1" type="checkbox">
-							<label for="plug1">1</label>
-							<input name="plug2" id="plug2" type="checkbox">
-							<label for="plug2">2</label>
-							<input name="plug3" id="plug3" type="checkbox">
-							<label for="plug3">3</label>
-							<input name="plug4" id="plug4" type="checkbox">
-							<label for="plug4">4</label>
-						</fieldset>
-					    <fieldset data-role="controlgroup" data-type="horizontal">
-						    <legend>Time (in 24 hour):</legend>
-						    <label for="hours">Hour</label>
-						    <select name="hours" id="hours">
-						        <option value="0">0</option>
-						        <option value="1">1</option>
-						        <option value="2">2</option>
-						        <option value="3">3</option>
-						        <option value="4">4</option>
-						        <option value="5">5</option>
-						        <option value="6">6</option>
-						        <option value="7">7</option>
-						        <option value="8">8</option>
-						        <option value="9">9</option>
-						        <option value="10">10</option>
-						        <option value="11">11</option>
-						        <option value="12">12</option>
-						        <option value="13">13</option>
-						   		<option value="14">14</option>
-						        <option value="15">15</option>
-						        <option value="16">16</option>
-						        <option value="17">17</option>
-						        <option value="18">18</option>
-						        <option value="19">19</option>
-						        <option value="20">20</option>
-						        <option value="21">21</option>
-						        <option value="22">22</option>
-						        <option value="23">23</option>
-						    </select>
-						    <label for="minutes">Minutes</label>
-						    <select name="minutes" id="minutes">
-						        <option value="0">00</option>
-						        <option value="1">01</option>
-						        <option value="2">02</option>
-						        <option value="3">03</option>
-						        <option value="4">04</option>
-						        <option value="5">05</option>
-						        <option value="6">06</option>
-						        <option value="7">07</option>
-						        <option value="8">08</option>
-						        <option value="9">09</option>
-						        <option value="10">10</option>
-						        <option value="11">11</option>
-						        <option value="12">12</option>
-						        <option value="13">13</option>
-						   		<option value="14">14</option>
-						        <option value="15">15</option>
-						        <option value="16">16</option>
-						        <option value="17">17</option>
-						        <option value="18">18</option>
-						        <option value="19">19</option>
-						        <option value="20">20</option>
-						        <option value="21">21</option>
-						        <option value="22">22</option>
-						        <option value="23">23</option>
-						    	<option value="24">24</option>
-						        <option value="25">25</option>
-						        <option value="26">26</option>
-						        <option value="26">26</option>
-						        <option value="27">27</option>
-						        <option value="28">28</option>
-						        <option value="29">29</option>
-						        <option value="30">30</option>
-						        <option value="31">31</option>
-						        <option value="32">32</option>
-						        <option value="33">33</option>
-						        <option value="34">34</option>
-						        <option value="35">35</option>
-						        <option value="36">36</option>
-						   		<option value="37">37</option>
-						        <option value="38">38</option>
-						        <option value="39">39</option>
-						        <option value="40">40</option>
-						        <option value="41">41</option>
-						        <option value="42">42</option>
-						        <option value="43">43</option>
-						        <option value="44">44</option>
-						        <option value="45">45</option>
-						        <option value="46">46</option>
-						    	<option value="47">47</option>
-						        <option value="48">48</option>
-						        <option value="49">49</option>
-						        <option value="50">50</option>
-						        <option value="51">51</option>
-						        <option value="52">52</option>
-						        <option value="53">53</option>
-						        <option value="54">54</option>
-						        <option value="55">55</option>
-						        <option value="56">56</option>
-						        <option value="57">57</option>
-						        <option value="58">58</option>
-						        <option value="59">59</option>    
-						    </select>
-						</fieldset>
-						<fieldset data-role="controlgroup" id="optRepeat">
-        					<legend>Repeat Modes:</legend>
-        					<input name="repeat-0" id="once-off" value="on" type="radio">
-        					<label for="once-off">Once-Off</label>
-        					<input name="repeat-0" id="repeat" value="off" checked="checked" type="radio">
-        					<label for="repeat">Repeat on given days</label>
-        				</fieldset>
-       					<div id="days_repeat">
-	        				<fieldset data-role="controlgroup">
-							        <legend>Days of Repetition:</legend>
-							        <input name="monday" id="monday" type="checkbox">
-							        <label for="monday">Monday</label>
-							        <input name="tuesday" id="tuesday" type="checkbox">
-							        <label for="tuesday">Tuesday</label>
-							        <input name="wednesday" id="wednesday" type="checkbox">
-							        <label for="wednesday">Wednesday</label>
-							        <input name="thursday" id="thursday" type="checkbox">
-							        <label for="thursday">Thursday</label>
-							        <input name="friday" id="friday" type="checkbox">
-							        <label for="friday">Friday</label>
-							        <input name="saturday" id="saturday" type="checkbox">
-							        <label for="saturday">Saturday</label>
-							        <input name="sunday" id="sunday" type="checkbox">
-							        <label for="sunday">Sunday</label>
-							</fieldset>
-						</div>
-						<a href="#" data-role="button" data-theme="b" data-icon="plug" id="save">Save</a>
-						    
+		<div class="alert alert-success" id="task-success">
+			<a class="close" data-dismiss="alert">x</a>
+			The task has been created.
+		</div>
+    	<header>
+    		<h1>Scheduling</h1>
+    	</header>
+    	<div class="row-margin">
+	    	<section class="accordion" id="new-task">
+	    		<section class="accordion-group">
+	    			<div class="accordion-heading">
+	    				<a class="accordion-toggle" data-toggle="collapse" data-parent="#new-task" href="#task-creator">
+	    					Add New Task
+	    				</a>
+	    			</div>
+	    			<div id="task-creator" class="accordion-body collapse">
+	    				<article class="accordion-inner">
+	    					<form>
+	    						<fieldset>
+	    							<legend>New Task</legend>
+	    							<label>Task Name</label>
+	    							<input type="text" id="text-1" placeholder="Enter Task Name here...">
+	    							<p>
+	    							<label class="radio">
+		    							<input type="radio" id="once-off" name="task-type" value="at" /> Once-off Task
+		    						</label>
+		    						<label class="radio">
+		    							<input type="radio" id="repeat" name="task-type" value="cron" checked="checked"/> Repeated Task
+		    						</label>
+	    							</p>
+	    							<label>Desired Power States:</label> 
+	    							<div class="btn-group">
+	    								<a class="btn ignore-state btn-warning" id="plug1">1</a>
+	    								<a class="btn ignore-state btn-warning" id="plug2">2</a>
+	    								<a class="btn ignore-state btn-warning" id="plug3">3</a>
+	    								<a class="btn ignore-state btn-warning" id="plug4">4</a>
+	    							</div>
+	    							<p>
+	    								<br>
+	    								<small>NOTE: The states are represented in the following colours: 
+			    							<span style="color:green">On</span>, 
+			    							<span style="color:red">Off</span>, 
+			    							<span style="color:orange">Ignore</span>.
+		    							</small>
+	    							</p>
+	    							<legend>Timing Settings</legend>
+	    							<label>Time</label>
+	    							<select id="hours" class="time-select">
+	    								<option value="0">00</option>
+	    								<option value="1">01</option>
+	    								<option value="2">02</option>
+	    								<option value="3">03</option>
+	    								<option value="4">04</option>
+	    								<option value="5">05</option>
+	    								<option value="6">06</option>
+	    								<option value="7">07</option>
+	    								<option value="8">08</option>
+	    								<option value="9">09</option>
+	    								<option value="10">10</option>
+	    								<option value="11">11</option>
+	    								<option value="12">12</option>
+	    								<option value="13">13</option>
+	    								<option value="14">14</option>
+	    								<option value="15">15</option>
+	    								<option value="16">16</option>
+	    								<option value="17">17</option>
+	    								<option value="18">18</option>
+	    								<option value="19">19</option>
+	    								<option value="20">20</option>
+	    								<option value="21">21</option>
+	    								<option value="22">22</option>
+	    								<option value="23">23</option>
+	    							</select>
+	    							:
+	    							<select class="time-select" id="minutes">
+	    								<option value="0">00</option>
+	    								<option value="1">01</option>
+	    								<option value="2">02</option>
+	    								<option value="3">03</option>
+	    								<option value="4">04</option>
+	    								<option value="5">05</option>
+	    								<option value="6">06</option>
+	    								<option value="7">07</option>
+	    								<option value="8">08</option>
+	    								<option value="9">09</option>
+	    								<option value="10">10</option>
+	    								<option value="11">11</option>
+	    								<option value="12">12</option>
+	    								<option value="13">13</option>
+	    								<option value="14">14</option>
+	    								<option value="15">15</option>
+	    								<option value="16">16</option>
+	    								<option value="17">17</option>
+	    								<option value="18">18</option>
+	    								<option value="19">19</option>
+	    								<option value="20">20</option>
+	    								<option value="21">21</option>
+	    								<option value="22">22</option>
+	    								<option value="23">23</option>
+	    								<option value="24">24</option>
+	    								<option value="25">25</option>
+	    								<option value="26">26</option>
+	    								<option value="27">27</option>
+	    								<option value="28">28</option>
+	    								<option value="29">29</option>
+	    								<option value="30">30</option>
+	    								<option value="31">31</option>
+	    								<option value="32">32</option>
+	    								<option value="33">33</option>
+	    								<option value="34">34</option>
+	    								<option value="35">35</option>
+	    								<option value="36">36</option>
+	    								<option value="37">37</option>
+	    								<option value="38">38</option>
+	    								<option value="39">39</option>
+	    								<option value="40">40</option>
+	    								<option value="41">41</option>
+	    								<option value="42">42</option>
+	    								<option value="43">43</option>
+	    								<option value="44">44</option>
+	    								<option value="45">45</option>
+	    								<option value="46">46</option>
+	    								<option value="47">47</option>
+	    								<option value="48">48</option>
+	    								<option value="49">49</option>
+	    								<option value="50">50</option>
+	    								<option value="51">51</option>
+	    								<option value="52">52</option>
+	    								<option value="53">53</option>
+	    								<option value="54">54</option>
+	    								<option value="55">55</option>
+	    								<option value="56">56</option>
+	    								<option value="57">57</option>
+	    								<option value="58">58</option>
+	    								<option value="59">59</option>
+	    							</select>
+	    							<div id="days_repeat">
+										<label>Days of Repetition</label>
+	    								<select id="dow" multiple="multiple">
+											<option value="0">Sunday</option>
+											<option value="1">Monday</option>
+											<option value="2">Tuesday</option>
+											<option value="3">Wednesday</option>
+											<option value="4">Thursday</option>
+											<option value="5">Friday</option>
+											<option value="6">Saturday</option>
+										</select>
+										<p>
+											<small>NOTE: Hold Ctrl whilst clicking the selected day to select or deselect days</small>
+										</p>
+	    							</div>
+	    							<p><a class="btn btn-primary" id="save" href="#">Save</a></p>
+	    						</fieldset>
+	    					</form>
+	    				</article>
+	    			</div>
+	    		</section>
+	    	</section>
+			<section class="accordion" id="accordion2">
+				<div class="row-fluid">
+					<div class="span6">
+						<section class="accordion-group">
+								<div class="accordion-heading">
+									<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
+										Once-off Tasks
+									</a>
+								</div>
+							
+							<div id="collapseOne" class="accordion-body collapse">
+									<article class="accordion-inner task-list">
+										<table class="task-table" width="100%" id="at_list">
+											{% for at_job in at_jobs %}
+											<tr id="at_{{ at_job[0] }}">
+												<td class="task-info">
+													<h2>{{ str(at_job[1]) }}</h2>
+													<p>Id: {{ at_job[0] }}</p>
+													<p>
+														Plug 1: {% if at_job[2][0] == "1"%}On{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
+														Plug 2: {% if at_job[2][1] == "1"%}On{% else %}Off{% end %}
+													</p>
+													<p>
+														Plug 3: {% if at_job[2][2] == "1"%}On{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
+														Plug 4: {% if at_job[2][3] == "1"%}On{% else %}Off{% end %}
+													</p>
+													<p>Scheduled for {{ at_job[3] }}:{{ at_job[4] }}</p>
+												</td>
+												<td width="40px" height="159px">
+													<button data-id={{ at_job[0] }} class="btn-danger btn-delete at_delete">
+														<span class="icon-remove"></span>
+													</button>
+												</td>
+											</tr>
+											{% end %}
+										</table>
+									</article>
+							</div>
+						</section>
 					</div>
-				</form>
-			</div>			
+					<div class="span6">
+						<section class="accordion-group">
+								<div class="accordion-heading">
+									<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
+										Scheduled Tasks
+									</a>
+								</div>
+							
+							<div id="collapseTwo" class="accordion-body collapse">
+								<article class="accordion-inner task-list">
+									<table id="cron_list" class="task-table" width="100%">
+										{% for cron_job in cron_list %}
+											<tr class="cron_{{ cron_job[1] }}">
+												<td class="task-info">
+													<h2>{{ cron_job[1].replace("_"," ") }}</h2>
+													<p>
+														Plug 1: {% if cron_job[0][5][0] == "1"%}On{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
+														Plug 2: {% if cron_job[0][5][1] == "1"%}On{% else %}Off{% end %}
+													</p>
+													<p>
+														Plug 3: {% if cron_job[0][5][2] == "1"%}On{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
+														Plug 4: {% if cron_job[0][5][3] == "1"%}On{% else %}Off{% end %}
+													</p>
+													<p>Scheduled for {{ cron_job[0][1] }}:{{ cron_job[0][0] }}</p>
+													<p>Repeat on:{% for days in cron_job[0][4] %}
+														{% if days == "0"%} Sun{% end %}
+														{% if days == "1"%} Mon{% end %}
+														{% if days == "2"%} Tue{% end %}
+														{% if days == "3"%} Wed{% end %}
+														{% if days == "4"%} Thurs{% end %}
+														{% if days == "5"%} Fri{% end %}
+														{% if days == "6"%} Sat{% end %}{% end %}</p>
+												</td>
+												<td width="40px" height="159px">
+													<button data-id={{ cron_job[1] }} class="btn-danger btn-delete cron_delete">
+														<span class="icon-remove"></span>
+													</button>
+												</td>
+											</tr>
+											{% end %}
+									</table>
+								</article>
+							</div>
+						</section>
+					</div>
+				</div>
+			</section>
+			<footer>
+				<p>
+					&copy; Copyright  by Moses Wan
+				</p>
+			</footer>
 		</div>
-		<script src="{{ static_url("schedule.js") }}" type="text/javascript"></script>
-	</div>
-</body>
+		<script src="{{ static_url("js/jquery-2.0.2.min.js") }}"></script>
+		<script src="{{ static_url("js/bootstrap.min.js") }}"></script>
+		<script src="{{ static_url("js/schedule.js") }}"></script>
+	</body>
 </html>
