@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+
+		<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+		Remove this if you use the .htaccess -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+		<title>Smart PowerBox: Settings</title>
+		<meta name="description" content="" />
+		<meta name="author" content="Moses Wan" />
+
+		<meta name="viewport" content="width=device-width; initial-scale=1.0" />
+		<link href="../static/css/bootstrap.min.css" rel="stylesheet">
+        <link href="../static/css/settings.css" rel="stylesheet">
+
+		<!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+	</head>
+
+	<body>
+		<nav class="navbar navbar-inverse navbar-static-top">
+    		<div class="navbar-inner">
+    			<div class="container">
+    				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        				<span class="icon-bar"></span>
+        				<span class="icon-bar"></span>
+        				<span class="icon-bar"></span>
+      				</a>
+      				<a class="brand">Smart PowerBox</a>
+      				<div class="nav-collapse collapse">
+		    			<ul class="nav">
+			    			<li><a href="#">Manual Control</a></li>
+			    			<li><a href="#">Scheduling</a></li>
+			    			<li class="active"><a href="#">Settings</a></li>
+		    			</ul>
+	    			</div>
+    			</div>
+    		</div>
+    	</nav>
+		<div class="row-margin">
+			<header>
+				<h1>Settings</h1>
+			</header>
+			<div class="row-fluid">
+				<div class="span6">
+					<section class="accordion" id="names">
+						<div class="accordion-group">
+							<div class="accordion-heading">
+								<a class="accordion-toggle" data-toggle="collapse" data-parent="#names" href="#name-editor">
+									Plug Names
+								</a>
+							</div>
+							<div id="name-editor" class="accordion-body collapse">
+								<div class="accordion-inner">
+									<form class="form-horizontal">
+										<div class="control-group">
+											<label class="control-label" for="plug1">Plug 1's Name:</label>
+											<div class="controls">
+												<div class="input-append">
+													<input type="text" placeholder="Enter Plug 1's name" id="plug1">
+													<button class="btn" type="button">Update</button>	
+												</div>
+												<span class="help-inline">Current name: BlahBlahBlah</span>
+											</div>
+										</div>
+										<div class="control-group">
+											<label class="control-label" for="plug1">Plug 2's Name:</label>
+											<div class="controls">
+												<div class="input-append">
+													<input type="text" placeholder="Enter Plug 2's name" id="plug1">
+													<button class="btn" type="button">Update</button>	
+												</div>
+												<span class="help-inline">Current name: BlahBlahBlah</span>
+											</div>
+										</div>
+										<div class="control-group">
+											<label class="control-label" for="plug1">Plug 3's Name:</label>
+											<div class="controls">
+												<div class="input-append">
+													<input type="text" placeholder="Enter Plug 3's name" id="plug1">
+													<button class="btn" type="button">Update</button>	
+												</div>
+												<span class="help-inline">Current name: BlahBlahBlah</span>
+											</div>
+										</div>
+										<div class="control-group">
+											<label class="control-label" for="plug1">Plug 4's Name:</label>
+											<div class="controls">
+												<div class="input-append">
+													<input type="text" placeholder="Enter Plug 4's name" id="plug1">
+													<button class="btn" type="button">Update</button>	
+												</div>
+												<span class="help-inline">Current name: BlahBlahBlah</span>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</section>
+				</div>
+				<div class="span6">
+					<section class="accordion" id="wifi">
+						<div class="accordion-group">
+							<div class="accordion-heading">
+								<a class="accordion-toggle" data-toggle="collapse" data-parent="#wifi" href="#wifi-editor">
+									WiFi Settings
+								</a>
+							</div>
+							<div id="wifi-editor" class="accordion-body collapse">
+								<div class="accordion-inner">
+									<form>
+										<legend>Main Network Connection</legend>
+										<div class="well">
+											<p>
+												Status: <span>Connected</span><br/>
+												SSID: <span>mywan6_RaspAP</span><br/>
+												IP Address: <span>192.168.2.0</span><br/>
+												Subnet Mask: <span>255.255.255.0</span>
+											</p>
+											<a class="btn btn-primary pull-right">Main Connection Setup</a>
+											<br/>
+										</div>
+										<legend>Range Extension</legend>
+										<div class="well">
+											<p>
+												Enabled: <span>Yes</span><br/>
+												SSID: <span>RaspAP</span><br/>
+												IP Address: <span>192.168.2.65</span><br/>
+												Subnet Mask: <span>255.255.255.192</span>
+											</p>
+											<a class="btn btn-primary pull-right">Range Extension Setup</a>
+											<br/>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</section>
+				</div>
+				
+			</div>
+			<footer>
+				<p>
+					&copy; Copyright  by Moses Wan
+				</p>
+			</footer>
+		</div>
+		<script src="../static/js/jquery-2.0.2.min.js"></script>
+		<script src="../static/js/bootstrap.min.js"></script>
+	</body>
+</html>

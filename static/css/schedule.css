@@ -1,0 +1,46 @@
+header {
+	padding: 2%;
+}
+
+.alert {
+	display: none;
+}
+.row-margin {
+	margin-left: 5%;
+	margin-right: 5%;
+}
+
+.accordion {
+	margin-left: 5%;
+	margin-right: 5%;
+}
+
+section > header {
+	padding: 0% !important;
+}
+
+.btn-delete {
+	padding: 9px 15px;
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.task-info {
+	padding: 9px 15px;
+	height: 150px;
+}
+
+.task-list {
+	padding: 0% !important;
+}
+
+#new-task a.accordion-toggle {
+	background: blue;
+	color: white;
+	border-radius: 5px;
+}
+
+select.time-select {
+	width: 4em;
+}

@@ -1,0 +1,49 @@
+header {
+	padding: 2%;
+}
+
+.cards {
+	vertical-align: middle;
+	padding: 5%;
+	background: #EEEEEE;
+	box-shadow: 5px 5px 2px #888888
+}
+
+.show-grid {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.row-margin {
+	margin-left: 5%;
+	margin-right: 5%;
+}
+
+.plug-names {
+	text-align: center;
+}
+
+img.grayscale {
+	-webkit-filter: grayscale(100%);
+	filter: grayscale(100%)
+}
+
+img {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+	max-width: 100px;
+	height: auto;
+}
+
+.cards-inner {
+	height: 100%;
+ 	width: 45%;
+ 	display: inline-block;
+ }
+
+.cards-inner-right {
+ 	width: 45%;
+ 	display: inline-block;
+ }
