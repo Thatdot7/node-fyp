@@ -26,21 +26,29 @@ var SocketHandler = {
 			plugs = data.plugs;
 			if (plugs.charAt(0) == "0"){
 				var plugs1 = "Off";
+			} else if (plugs.charAt(0) == "2") {
+				var plugs1 = "Ignore";
 			} else {
 				var plugs1 = "On";
 			}
 			if (plugs.charAt(1) == "0"){
 				var plugs2 = "Off";
+			} else if (plugs.charAt(1) == "2") {
+				var plugs2 = "Ignore";
 			} else {
 				var plugs2 = "On";
 			}
 			if (plugs.charAt(2) == "0"){
 				var plugs3 = "Off";
+			} else if (plugs.charAt(2) == "2") {
+				var plugs3 = "Ignore";
 			} else {
 				var plugs3 = "On";
 			}
 			if (plugs.charAt(3) == "0"){
 				var plugs4 = "Off";
+			} else if (plugs.charAt(3) == "2") {
+				var plugs4 = "Ignore";
 			} else {
 				var plugs4 = "On";
 			}
@@ -53,7 +61,7 @@ var SocketHandler = {
 				
 			if(data.method == "0"){
 				id = data.id;
-				var node = '<tr id="at_' + id + '">' +
+				var node = '<tr class="at_' + id + '">' +
 								'<td class="task-info">' +
 									'<h2>' + name + '</h2>' +
 										'<p>Id: ' + id + '</p>' +
@@ -153,7 +161,7 @@ $(document).ready(function() {
 	$("#save").on('click', function() {
 		var name = $("#text-1").val();
 		if(!name){
-			$("#name-error").css("display", "block");
+			$("#name-error").show();
 			$("#name-error").alert();
 			return;
 		}
@@ -194,7 +202,7 @@ $(document).ready(function() {
 		if ($('#repeat').is(':checked')){
 			dow = "0000000";
 			if(!$("#dow").val()){
-				$("#dow-error").css("display", "block");
+				$("#dow-error").show();
 				$("#dow-error").alert();
 				return;
 			}
@@ -220,9 +228,8 @@ $(document).ready(function() {
 			SocketHandler.socket.send(JSON.stringify(message_json))
 		}
 		$("#task-creator").collapse('hide');
-		$("#task-success").css("display", "block");
+		$("#task-success").show();
 		$("#task-success").alert();
-		
 	});
 
 	$("#debug").on('click', function(){

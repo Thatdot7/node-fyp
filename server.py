@@ -16,15 +16,18 @@ from crontab import CronTab
 
 from tornado.options import define, options
 import json
-#import GPIO_handler, GPIO_on, GPIO_off
+import GPIO_handler, GPIO_on, GPIO_off
 
-plug_status = "0000"
+#plug_status = "0000"
 cron = CronTab()
 
 job_list = []
 
 define("port", default=80, help="run on the given port", type=int)
 
+
+# Handles the storing of task details for the "atd" package
+# Used for once-off tasks
 class databaseHandler:
     def __init__(self):
         self.db_connection = sqlite3.connect('at_jobs.db')
@@ -48,6 +51,8 @@ class databaseHandler:
         self.cur.execute("DELETE FROM jobs WHERE Id = %s" %(Id))
         self.db_connection.commit()
     def clean(self):
+	
+	# Cleans the database to only have the tasks that are yet to run
         job_ids = at_get()
         if not job_ids:
             self.cur.execute('DROP TABLE IF EXISTS jobs')
@@ -67,7 +72,8 @@ class databaseHandler:
     def close(self):
             self.db_connection.close()
             del self
-            
+
+# Get the atd jobs that are pending to run            
 def at_get():
     output = subprocess.check_output("atq")
     output = output.split('\n')
@@ -77,6 +83,7 @@ def at_get():
         output[index] = int(output[index][0])
     return output
 
+# Redirects the URLs to the correct handler
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
@@ -94,6 +101,7 @@ class Application(tornado.web.Application):
         
         tornado.web.Application.__init__(self, handlers, **settings)
 
+# Generates the webpage for "/" and "/control"
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         plugs = [["plug1","Plug 1", "light1", "11"],
@@ -104,39 +112,47 @@ class MainHandler(tornado.web.RequestHandler):
         self.render("index.html",
                     plugs=plugs)
 
-        
+# Handles the WebSockets for "/" and "/control"
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
+
+    # Stores a list of connections
     connections = []
     def open(self):
+
+	# When a client connects to the WebSocket, the server will re-transmit the status of plugs
         self.connections.append(self)
-		#plug_status = GPIO_handler.read()
+	plug_status = GPIO_handler.read()
         self.write_message(plug_status)
         print "WebSocket opened"
         
     def on_message(self, message):
         print "Message Received: %s" %message
         
+	# When a client changes something, the server will execute the change, then will transmit that change to all 
+	# the clients connected to the WebSocket
         if message[0] == "1":
-            global plug_status
-            plug_status = plug_status + plug_status[:(int(message[1])-1)] + message[2] + plug_status[(int(message[1])):]
-            plug_status = plug_status[4:]
-            print plug_status
+#            global plug_status
+#            plug_status = plug_status + plug_status[:(int(message[1])-1)] + message[2] + plug_status[(int(message[1])):]
+#            plug_status = plug_status[4:]
+#            print plug_status
             
-             # if message[2] == "1":
-                 # GPIO_on.run_script(message[1])
-             # else:
-                 # GPIO_off.run_script(message[1])
+            if message[2] == "1":
+                 GPIO_on.run_script(message[1])
+            else:
+                 GPIO_off.run_script(message[1])
              
-             #plug_status = GPIO_handler.read()
+        plug_status = GPIO_handler.read()
             
         for connections in self.connections:
             connections.write_message(plug_status)
         
     def on_close(self):
+	# Remove the client's connection from the list
         self.connections.remove(self)
         print "WebSocket closed:"
         print self.connections
 
+# Generates the webpage for "/schedule"
 class ScheduleHandler(tornado.web.RequestHandler):
     def get(self):
         at_jobs = databaseHandler()
@@ -154,6 +170,8 @@ class ScheduleHandler(tornado.web.RequestHandler):
         print list
         self.render("schedule.html", at_jobs = jobs, cron_list = list)
 
+
+# Handles the WebSockets for "/schedule"
 class WebSocketScheduleHandler(tornado.websocket.WebSocketHandler):
     connections = []
     def open(self):
@@ -167,23 +185,27 @@ class WebSocketScheduleHandler(tornado.websocket.WebSocketHandler):
             data["name"] = data["name"].replace(" ", "_")
 
         if data["method"] == "0":
+	    # Create a once-off task
             at = databaseHandler()
             id = at.insert(data["name"],str(data["plugs"]), str(data["hours"]), str(data["minutes"]))
             at.close()
             data["id"] = str(id)
           
         if data["method"] == "1":
+	    # Delete a once-off task
             at = databaseHandler()
             at.delete(data["id"])
             at.close()
               
         if data["method"] == "2":
+	    # Delete a repeated task
             list = cron.find_comment(data["name"])
             for cron_job in list:
                 cron.remove(cron_job)
             cron.write()
               
         if data["method"] == "3":
+	    # Create a repeated task
             command_line = "sudo python /home/pi/node-fyp/GPIO_handler.py %s" %(str(data["plugs"]))
             job = cron.new(command=command_line, comment=data["name"])
             job.minute.on(data["minutes"])
@@ -200,11 +222,13 @@ class WebSocketScheduleHandler(tornado.websocket.WebSocketHandler):
         print data
         if 'name' in data:
             data["name"] = data["name"].replace("_", " ")
-            
+        
+	# Retransmit the change to all clients    
         for connection in self.connections:
             connection.write_message(json.dumps(data))
         
     def on_close(self):
+	# Remove client's connection from the list
         self.connections.remove(self)
         print "WebSocket closed:"
         print self.connections

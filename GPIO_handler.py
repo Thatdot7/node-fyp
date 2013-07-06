@@ -1,9 +1,13 @@
 import RPi.GPIO as GPIO
 import sys
 
+# Assigns which GPIO pins controls the plugs
+# The pin numbers control plug 1,2,3,4 respectively
 pin_translate = [3,5,7,11]
 
+
 def write(pins):
+    # Writes the states of multiple plugs at once
     GPIO.setmode(GPIO.BOARD)
     GPIO.setwarnings(False)
 
@@ -12,10 +16,11 @@ def write(pins):
         GPIO.setup(pin, GPIO.OUT)
         if pins[index] == "1":
             GPIO.output(pin, GPIO.HIGH)
-        else:
+        elif pins[index] == "0":
             GPIO.output(pin, GPIO.LOW)
 
 def read():
+    # Reads the states of the plugs and returns it
     GPIO.setmode(GPIO.BOARD)
     GPIO.setwarnings(False)
 
