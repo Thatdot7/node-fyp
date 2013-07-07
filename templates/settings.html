@@ -11,9 +11,9 @@
 		<meta name="description" content="" />
 		<meta name="author" content="Moses Wan" />
 
-		<meta name="viewport" content="width=device-width; initial-scale=1.0" />
-		<link href="../static/css/bootstrap.min.css" rel="stylesheet">
-        <link href="../static/css/settings.css" rel="stylesheet">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link href="{{ static_url("css/bootstrap.min.css") }}" rel="stylesheet">
+        	<link href="{{ static_url("css/settings.css") }}" rel="stylesheet">
 
 		<!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
 		<link rel="shortcut icon" href="/favicon.ico" />
@@ -32,8 +32,8 @@
       				<a class="brand">Smart PowerBox</a>
       				<div class="nav-collapse collapse">
 		    			<ul class="nav">
-			    			<li><a href="#">Manual Control</a></li>
-			    			<li><a href="#">Scheduling</a></li>
+			    			<li><a href="control">Manual Control</a></li>
+			    			<li><a href="schedule">Scheduling</a></li>
 			    			<li class="active"><a href="#">Settings</a></li>
 		    			</ul>
 	    			</div>
@@ -55,45 +55,45 @@
 							</div>
 							<div id="name-editor" class="accordion-body collapse">
 								<div class="accordion-inner">
-									<form class="form-horizontal">
+									<form>
 										<div class="control-group">
 											<label class="control-label" for="plug1">Plug 1's Name:</label>
 											<div class="controls">
 												<div class="input-append">
 													<input type="text" placeholder="Enter Plug 1's name" id="plug1">
-													<button class="btn" type="button">Update</button>	
+													<button class="btn update" type="button">Update</button>	
 												</div>
-												<span class="help-inline">Current name: BlahBlahBlah</span>
+												<span class="help-inline">Current name: <span id="plug1_name">{{ plug_names[0] }}</span></span>
 											</div>
 										</div>
 										<div class="control-group">
-											<label class="control-label" for="plug1">Plug 2's Name:</label>
+											<label class="control-label" for="plug2">Plug 2's Name:</label>
 											<div class="controls">
 												<div class="input-append">
-													<input type="text" placeholder="Enter Plug 2's name" id="plug1">
-													<button class="btn" type="button">Update</button>	
+													<input type="text" placeholder="Enter Plug 2's name" id="plug2">
+													<button class="btn update" type="button">Update</button>	
 												</div>
-												<span class="help-inline">Current name: BlahBlahBlah</span>
+												<span class="help-inline">Current name: <span id="plug2_name">{{ plug_names[1] }}</span></span>
 											</div>
 										</div>
 										<div class="control-group">
-											<label class="control-label" for="plug1">Plug 3's Name:</label>
+											<label class="control-label" for="plug3">Plug 3's Name:</label>
 											<div class="controls">
 												<div class="input-append">
-													<input type="text" placeholder="Enter Plug 3's name" id="plug1">
-													<button class="btn" type="button">Update</button>	
+													<input type="text" placeholder="Enter Plug 3's name" id="plug3">
+													<button class="btn update" type="button">Update</button>	
 												</div>
-												<span class="help-inline">Current name: BlahBlahBlah</span>
+												<span class="help-inline">Current name: <span id="plug3_name">{{ plug_names[2] }}</span></span>
 											</div>
 										</div>
 										<div class="control-group">
-											<label class="control-label" for="plug1">Plug 4's Name:</label>
+											<label class="control-label" for="plug4">Plug 4's Name:</label>
 											<div class="controls">
 												<div class="input-append">
-													<input type="text" placeholder="Enter Plug 4's name" id="plug1">
-													<button class="btn" type="button">Update</button>	
+													<input type="text" placeholder="Enter Plug 4's name" id="plug4">
+													<button class="btn update" type="button">Update</button>	
 												</div>
-												<span class="help-inline">Current name: BlahBlahBlah</span>
+												<span class="help-inline">Current name: <span id="plug4_name">{{ plug_names[3] }}</span></span>
 											</div>
 										</div>
 									</form>
@@ -149,7 +149,8 @@
 				</p>
 			</footer>
 		</div>
-		<script src="../static/js/jquery-2.0.2.min.js"></script>
-		<script src="../static/js/bootstrap.min.js"></script>
+		<script src="{{ static_url("js/jquery-2.0.2.min.js") }}"></script>
+		<script src="{{ static_url("js/bootstrap.min.js") }}"></script>
+		<script src="{{ static_url("js/settings.js") }}"></script>
 	</body>
 </html>

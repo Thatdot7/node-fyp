@@ -13,6 +13,7 @@ import tornado.websocket
 import subprocess
 import sqlite3
 from crontab import CronTab
+from configobj import ConfigObj
 
 from tornado.options import define, options
 import json
@@ -25,10 +26,19 @@ job_list = []
 
 define("port", default=80, help="run on the given port", type=int)
 
+# Access to 'config/general.ini' to read and write preferences
+class Parser:
+    def __init__(self, file):
+        self.parser = ConfigObj(file)
+    def get(self, section, item):
+        return self.parser[section][item]
+    def write(self, section, item, value):
+        self.parser[section][item] = value
+        self.parser.write()
 
 # Handles the storing of task details for the "atd" package
 # Used for once-off tasks
-class databaseHandler:
+class DatabaseHandler:
     def __init__(self):
         self.db_connection = sqlite3.connect('at_jobs.db')
         self.cur = self.db_connection.cursor()
@@ -92,6 +102,8 @@ class Application(tornado.web.Application):
             (r"/ws", WebSocketHandler),
             (r"/schedule", ScheduleHandler),
             (r"/ws_schedule", WebSocketScheduleHandler),
+            (r"/settings", SettingsHandler),
+            (r"/ws_settings", WebSocketSettingsHandler)
         ]
         
         settings = dict(
@@ -104,10 +116,11 @@ class Application(tornado.web.Application):
 # Generates the webpage for "/" and "/control"
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        plugs = [["plug1","Plug 1", "light1", "11"],
-                ["plug2","Plug 2", "light2", "12"],
-                ["plug3", "Plug 3", "light3", "13"],
-                ["plug4", "Plug 4", "light4", "14"]]
+        config = Parser('config/general.ini')
+        plugs = [["plug1",config.get('plug_names', 'plug1'), "light1", "11"],
+                ["plug2", config.get('plug_names', 'plug2'), "light2", "12"],
+                ["plug3", config.get('plug_names', 'plug3'), "light3", "13"],
+                ["plug4", config.get('plug_names', 'plug4'), "light4", "14"]]
 
         self.render("index.html",
                     plugs=plugs)
@@ -155,7 +168,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 # Generates the webpage for "/schedule"
 class ScheduleHandler(tornado.web.RequestHandler):
     def get(self):
-        at_jobs = databaseHandler()
+        at_jobs = DatabaseHandler()
         jobs = at_jobs.get_table()
         at_jobs.close()
         list = cron.find_command("sudo python /home/pi/node-fyp/GPIO_handler.py")
@@ -186,14 +199,14 @@ class WebSocketScheduleHandler(tornado.websocket.WebSocketHandler):
 
         if data["method"] == "0":
 	    # Create a once-off task
-            at = databaseHandler()
+            at = DatabaseHandler()
             id = at.insert(data["name"],str(data["plugs"]), str(data["hours"]), str(data["minutes"]))
             at.close()
             data["id"] = str(id)
           
         if data["method"] == "1":
 	    # Delete a once-off task
-            at = databaseHandler()
+            at = DatabaseHandler()
             at.delete(data["id"])
             at.close()
               
@@ -232,6 +245,39 @@ class WebSocketScheduleHandler(tornado.websocket.WebSocketHandler):
         self.connections.remove(self)
         print "WebSocket closed:"
         print self.connections
+
+# Generates the webpage for "/settings"
+class SettingsHandler(tornado.web.RequestHandler):
+    def get(self):
+        plug_names = []
+        
+        config = Parser('config/general.ini')
+        plug_names.append(config.get('plug_names', 'plug1'))
+        plug_names.append(config.get('plug_names', 'plug2'))
+        plug_names.append(config.get('plug_names', 'plug3'))
+        plug_names.append(config.get('plug_names', 'plug4'))
+        self.render('settings.html', plug_names = plug_names )
+
+# Handles the WebSockets for "/settings"
+class WebSocketSettingsHandler(tornado.websocket.WebSocketHandler):
+    connections = []
+    config = Parser('config/general.ini')
+    def open(self):
+        self.connections.append(self)
+        
+    def on_message(self, message):
+        data = json.loads(message)
+        print data
+
+        if data['method'] == "0":
+            self.config.write('plug_names', data['id'], data['value'])
+
+            
+        for connection in self.connections:
+            connection.write_message(message)
+
+    def on_close(self):
+        self.connections.remove(self)
 
 
 def main():
