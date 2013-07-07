@@ -1,0 +1,16 @@
+header {
+	padding: 2%;
+}
+
+.row-margin {
+	margin-left: 5%;
+	margin-right: 5%;
+}
+
+#scan-group {
+	display: none;
+}
+
+#scan-start {
+	display: none;
+}
