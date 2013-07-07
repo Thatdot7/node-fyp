@@ -107,7 +107,7 @@
 						<div class="accordion-group">
 							<div class="accordion-heading">
 								<a class="accordion-toggle" data-toggle="collapse" data-parent="#wifi" href="#wifi-editor">
-									WiFi Settings
+									Wifi Settings
 								</a>
 							</div>
 							<div id="wifi-editor" class="accordion-body collapse">
@@ -116,10 +116,9 @@
 										<legend>Main Network Connection</legend>
 										<div class="well">
 											<p>
-												Status: <span>Connected</span><br/>
-												SSID: <span>mywan6_RaspAP</span><br/>
-												IP Address: <span>192.168.2.0</span><br/>
-												Subnet Mask: <span>255.255.255.0</span>
+												{% for lines in wifi_status %}
+												{{ lines }} <br/>
+												{% end %}
 											</p>
 											<a class="btn btn-primary pull-right">Main Connection Setup</a>
 											<br/>

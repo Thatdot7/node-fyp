@@ -9,11 +9,13 @@ import tornado.web
 import tornado.options
 import os.path
 import tornado.websocket
+from tornado import gen
 
 import subprocess
 import sqlite3
 from crontab import CronTab
 from configobj import ConfigObj
+import threading
 
 from tornado.options import define, options
 import json
@@ -83,6 +85,29 @@ class DatabaseHandler:
             self.db_connection.close()
             del self
 
+# Handles network scans and results
+class NetworkManager(threading.Thread):
+    def __init__(self, callback=None, *args, **kwargs):
+        super(NetworkManager, self).__init__(*args, **kwargs)
+        self.callback = callback
+        
+    def run(self):
+        import time
+        subprocess.call("wpa_cli scan", shell=True)
+        time.sleep(3)
+        output = subprocess.check_output("wpa_cli scan_results", shell=True)
+        output = output.split('\n')
+        output.pop(0)
+        output.pop(0)
+        output.pop()
+
+        for i in range(len(output)):
+            output[i] = output[i].split('\t')
+
+        self.callback(output)
+        return
+
+
 # Get the atd jobs that are pending to run            
 def at_get():
     output = subprocess.check_output("atq")
@@ -103,7 +128,8 @@ class Application(tornado.web.Application):
             (r"/schedule", ScheduleHandler),
             (r"/ws_schedule", WebSocketScheduleHandler),
             (r"/settings", SettingsHandler),
-            (r"/ws_settings", WebSocketSettingsHandler)
+            (r"/ws_settings", WebSocketSettingsHandler),
+            (r"/wifiwizard", WifiWizardHandler)
         ]
         
         settings = dict(
@@ -256,7 +282,11 @@ class SettingsHandler(tornado.web.RequestHandler):
         plug_names.append(config.get('plug_names', 'plug2'))
         plug_names.append(config.get('plug_names', 'plug3'))
         plug_names.append(config.get('plug_names', 'plug4'))
-        self.render('settings.html', plug_names = plug_names )
+
+        output = subprocess.check_output("wpa_cli status", shell=True)
+        output = output.split('\n')
+        
+        self.render('settings.html', plug_names = plug_names, wifi_status = output )
 
 # Handles the WebSockets for "/settings"
 class WebSocketSettingsHandler(tornado.websocket.WebSocketHandler):
@@ -264,7 +294,7 @@ class WebSocketSettingsHandler(tornado.websocket.WebSocketHandler):
     config = Parser('config/general.ini')
     def open(self):
         self.connections.append(self)
-        
+
     def on_message(self, message):
         data = json.loads(message)
         print data
@@ -279,6 +309,30 @@ class WebSocketSettingsHandler(tornado.websocket.WebSocketHandler):
     def on_close(self):
         self.connections.remove(self)
 
+# Generates the webpage for "/wifiwizard"
+class WifiWizardHandler(tornado.web.RequestHandler):
+    @tornado.web.asynchronous
+    def get(self):
+        NetworkManager(self.job_done).start()
+        self.status = subprocess.check_output("wpa_cli status", shell=True)
+        self.status = self.status.split('\n')
+        
+    def job_done(self, value):
+        #self.write(value)
+        self.render('net_wizard.html', current_status = self.status, scan_group = value)
+
+
+### Handles the WebSockets for "/wifiwizard"
+##class WebSocketWifiWizardHandler(tornado.websocket.WebSocketHandler):
+##    def open(self):
+##        
+##    
+##    def on_message(self, message):
+##        
+##        
+##    def on_close(self):
+
+        
 
 def main():
     tornado.options.parse_command_line()
