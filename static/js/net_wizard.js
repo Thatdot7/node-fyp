@@ -1,13 +1,15 @@
 $(document).ready(function() {
-	$("#saved_net, #scan_net").on('click', function() {
-		if($(this).attr("id") == "saved_net"){
-			$("#saved-group").show();
-			$("#scan-group").hide();
-			$("#scan-start").hide();
-		} else {
-			$("#scan-group").show();
-			$("#saved-group").hide();
-			$("#scan-start").show();
+	$(".connect").on('click', function(){
+		$(this).button('loading');
+		var id_tag = $(this).parents(".accordion-body").attr("id");
+		id_tag = id_tag.split("-");
+		
+		if(id_tag[0] == "saved"){
+			$.post('wifiwizard', {net_cat: id_tag[0], id: id_tag[1]}
+			).done(function(data){
+				location.reload();
+				//console.log(data);
+			});
 		}
 	});
 });

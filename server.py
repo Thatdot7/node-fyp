@@ -16,6 +16,7 @@ import sqlite3
 from crontab import CronTab
 from configobj import ConfigObj
 import threading
+import time
 
 from tornado.options import define, options
 import json
@@ -85,14 +86,13 @@ class DatabaseHandler:
             self.db_connection.close()
             del self
 
-# Handles network scans and results
+# Thread to handle the network scans and results
 class NetworkManager(threading.Thread):
     def __init__(self, callback=None, *args, **kwargs):
         super(NetworkManager, self).__init__(*args, **kwargs)
         self.callback = callback
         
     def run(self):
-        import time
         subprocess.call("wpa_cli scan", shell=True)
         time.sleep(3)
         output = subprocess.check_output("wpa_cli scan_results", shell=True)
@@ -101,13 +101,41 @@ class NetworkManager(threading.Thread):
         output.pop(0)
         output.pop()
 
-        for i in range(len(output)):
-            output[i] = output[i].split('\t')
+        unique_networks = []
+        filter_output = []
+        for index in range(len(output)):
+            #print output[index]
+            output[index] = output[index].split('\t')
+            if output[index][4] not in unique_networks:
+                unique_networks.append(output[index][4])
+                filter_output.append(output[index])
 
-        self.callback(output)
+        del output
+
+        self.callback(filter_output)
         return
 
+# Thread that handles the connection to new networks
+class NetworkConnection(threading.Thread):
+    def __init__(self, data, callback=None, *args, **kwargs):
+        super(NetworkConnection, self).__init__(*args, **kwargs)
+        self.callback = callback
+        self.data = data
 
+
+    def run(self):
+        if self.data[0] == "saved":  
+            subprocess.call("wpa_cli select_network " + self.data[1], shell=True)
+            for i in range(5):
+                time.sleep(3)
+                output = subprocess.check_output("wpa_cli status", shell=True)
+                if "wpa_state=COMPLETED" in output:
+                    subprocess.call("wpa_cli save_config", shell=True)
+                    break
+
+        self.callback('Finish up')
+        return    
+    
 # Get the atd jobs that are pending to run            
 def at_get():
     output = subprocess.check_output("atq")
@@ -314,13 +342,47 @@ class WifiWizardHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     def get(self):
         NetworkManager(self.job_done).start()
-        self.status = subprocess.check_output("wpa_cli status", shell=True)
-        self.status = self.status.split('\n')
+        
         
     def job_done(self, value):
-        #self.write(value)
-        self.render('net_wizard.html', current_status = self.status, scan_group = value)
+        self.status = subprocess.check_output("wpa_cli status", shell=True)
+        self.state = 'wpa_state=COMPLETED' in self.status
+        self.status = self.status.split('\n')
 
+        # Get the list of saved networks and the current network
+        self.saved = subprocess.check_output("wpa_cli list_networks", shell=True)
+        self.saved = self.saved.split('\n')
+        self.saved.pop(0)
+        self.saved.pop(0)
+        self.saved.pop()
+
+        # Find the current network form the list of saved networks
+        self.current = 'none nothing useless string'
+        for i in range(len(self.saved)):
+                self.saved[i] = self.saved[i].split('\t')
+                if ("[CURRENT]" in self.saved[i]) and self.state:
+                    self.current = self.saved[i][1]
+
+        print self.saved
+        print self.current
+
+        #self.write(value)
+        self.render('net_wizard.html', current_status = self.status,
+                    scan_group = value, current = self.current, saved_group = self.saved)
+        
+    @tornado.web.asynchronous
+    def post(self):
+        net_cat = self.get_argument('net_cat', '')
+                
+        if net_cat == "saved":
+            net_id = self.get_argument('id', '')
+            NetworkConnection([net_cat, net_id], self.post_finish).start()
+
+    def post_finish(self, value):
+        print 'In post_finish'
+        self.write('Finish It')
+        self.finish()
+            
 
 ### Handles the WebSockets for "/wifiwizard"
 ##class WebSocketWifiWizardHandler(tornado.websocket.WebSocketHandler):

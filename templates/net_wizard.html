@@ -11,7 +11,7 @@
 		<meta name="description" content="" />
 		<meta name="author" content="Moses Wan" />
 
-		<meta name="viewport" content="width=device-width; initial-scale=1.0" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link href="../static/css/bootstrap.min.css" rel="stylesheet">
         	<link href="../static/css/net_wizard.css" rel="stylesheet">
 
@@ -32,9 +32,9 @@
       				<a class="brand">Smart PowerBox</a>
       				<div class="nav-collapse collapse">
 		    			<ul class="nav">
-			    			<li><a href="#">Manual Control</a></li>
-			    			<li><a href="#">Scheduling</a></li>
-			    			<li><a href="#">Settings</a></li>
+			    			<li><a href="/control">Manual Control</a></li>
+			    			<li><a href="/schedule">Scheduling</a></li>
+			    			<li><a href="/settings">Settings</a></li>
 		    			</ul>
 	    			</div>
     			</div>
@@ -64,17 +64,8 @@
 												{% end %}
 											</p>
 										</div>
-										<legend>Filter</legend>
-										<label class="radio">
-											<input type="radio" name="connect_type" id="saved_net" value="saved_name" checked>
-											Saved Networks
-										</label>
-										<label class="radio">
-											<input type="radio" name="connect_type" id="scan_net" value="scan_net">
-											Scanned Networks
-										</label>
 										<button class="btn btn-primary" id="scan-start">Scan For Wireless Networks</button>
-										<p><button class="btn btn-inverse">Back to Settings</button></p>
+										<p><a class="btn btn-inverse" href="/settings">Back to Settings</a></p>
 									</form>
 								</div>
 							</div>
@@ -92,26 +83,30 @@
 							<div id="saved_networks" class="accordion-body collapse">
 								<div class="accordion-inner">
 									<section class="accordion" id="saved_list">
+										{% for network in saved_group %}
 										<div class="accordion-group">
 											<div class="accordion-heading">
-												<a class="accordion-toggle" data-toggle="collapse" data-parent="#saved_list" href="#saved-mywan6_RaspAP">
-													mywan6_RaspAP
+												<a class="accordion-toggle" data-toggle="collapse" data-parent="#saved_list" href="#saved-{{ network[0] }}">
+													{{ network[1] }}
+													{% if network[1] == current %}
+													<span class="label label-success pull-right">Connected</span>
+													{% end %}
 												</a>
 											</div>
-											<div id="saved-mywan6_RaspAP" class="accordion-body collapse">
+											<div id="saved-{{ network[0] }}" class="accordion-body collapse">
 												<div class="accordion-inner">
 													<form>
 														<div class="control-group">
-															<label class="control-label" >Passphrase:</label>
-															<div class="input-append">
-																<input type="password" placeholder="Enter the Passphrase">
-																<button class="btn btn-primary" type="button">Connect</button>
-															</div>
+															{% if network[1] != current %}
+															<button class="btn btn-primary connect" data-loading-text="Connecting..." autocomplete="off" type="button">Connect</button>
+															{% end %}
+															<button class="btn btn-danger" type="button">Delete</button>
 														</div>
 													</form>
 												</div>
 											</div>
 										</div>
+										{% end %}
 									</section>
 								</div>
 							</div>
@@ -130,24 +125,27 @@
 											<div class="accordion-heading">
 												<a class="accordion-toggle" data-toggle="collapse" data-parent="#scan_list" href="#scan-{{ network[4].replace(" ", "_") }}">
 													{{ network[4] }}
-													
+													{% if network[4] == current %}
+													<span class="label label-success pull-right">Connected</span>
+													{% end %}
 												</a>
 											</div>
 											<div id="scan-{{ network[4].replace(" ", "_")}}" class="accordion-body collapse">
 												<div class="accordion-inner">
 													<form>
 														<div class="control-group">
-															<label class="control-label">BSSID: {{ network[0] }}</label>
 															<label class="control-label">Flags: {{ network[3] }}</label>
 															<label class="control-label">Signal Strength:</label>
 															<div class="progress {% if int(network[2]) >= 60 %}progress-success{% elif int(network[2]) >= 30 %}progress-warning{% else %}progress-danger{% end %}">
 																<div class="bar" style="width: {{ network[2] }}%"></div>
 															</div>
+															{% if network[4] != current %}
 															<label class="control-label" >Passphrase:</label>
 															<div class="input-append">
 																<input type="password" placeholder="Enter the Passphrase">
 																<button class="btn btn-primary" type="button">Connect</button>
 															</div>
+															{% end %}
 														</div>
 													</form>
 												</div>
