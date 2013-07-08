@@ -14,10 +14,11 @@ Features include:-
 - [x] Scheduling and Timing Policies for each plug
 - [x] Plugs cans have a label
 - [x] Wifi connection settings can be changed within the interface
+- [ ] Ability to connect to new networks
 - [ ] Range Extension settings in the interface
  
 Getting Started
--------------------------------------------
+------------------------------------------- 
 - Clone the repository
 - Connect the powerpoint controllers to pins 3,5,7,11
 - Open up /etc/rc.local (sudo nano /etc/rc.local)
