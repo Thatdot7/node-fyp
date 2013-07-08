@@ -1,6 +1,8 @@
 Smart Power Board
 =================================================
 
+By Moses Yi-Jie Wan (aka Thatdot7)
+
 The "node-fyp" repository is a web server, written for the Raspberry Pis, which can remotely control the states of a 4-plug power board. It is designed to be a Final Year Project for Electrical Engineering. Because this project allows the Raspberry Pis to interact with AC mains power, caution is advised when creating the circuitory.
 
 The current implementation is rather static, but I am improving it to be a lot more customizable as I progress through my Final Year Project. Though, there are a few features that are up and running.
