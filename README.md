@@ -19,13 +19,12 @@ Features include:-
  
 Getting Started
 ------------------------------------------- 
-- Clone the repository
+- Clone the repository into `/home/pi`
 - Connect the powerpoint controllers to pins 3,5,7,11
 - Open up /etc/rc.local (sudo nano /etc/rc.local)
 - Add the following lines just before "exit 0"
-  - `python %clone_location%/node-fyp/server.py&`
-  - `python %clone_location%/node-fyp/test_broadcast_receive.py&`
-  - `%clone_location%` is the path where you clone the repository. Please write the **full path name**.
+  - `python /home/pi/node-fyp/server.py&`
+  - `python /home/pi/node-fyp/test_broadcast_receive.py&`
 
 Once this is all done, you should be able to enter the IP address of your Raspberry Pi then enjoy the web interface.
 
