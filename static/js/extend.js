@@ -30,8 +30,8 @@ $(document).ready(function(){
 		console.log(message_json);
 		$.post('extend', message_json
 		).done(function(data){
-			//location.reload();
-			console.log(data);
+			location.reload();
+			//console.log(data);
 		});
 	});
 });

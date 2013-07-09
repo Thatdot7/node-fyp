@@ -20,7 +20,7 @@ import time
 
 from tornado.options import define, options
 import json
-import GPIO_handler, GPIO_on, GPIO_off
+import GPIO_handler, GPIO_on, GPIO_off, startup
 
 #plug_status = "0000"
 cron = CronTab()
@@ -458,6 +458,35 @@ class ExtendWizardHandler(tornado.web.RequestHandler):
         self.extension_settings.write('range_extension', self.get_argument('start', ''), 'start')
         self.extension_settings.write('range_extension', self.get_argument('end', ''), 'end')
         self.extension_settings.write('range_extension', self.get_argument('netmask', ''), 'netmask')
+
+        with open('/etc/udhcpd.conf', 'w') as udhcpd_file:
+            udhcpd_file.write("start " + self.extension_settings.get('range_extension', 'start') + '\n')
+            udhcpd_file.write("end " + self.extension_settings.get('range_extension', 'end') + '\n')
+            udhcpd_file.write('interface wlan0\n')
+            udhcpd_file.write('opt dns 8.8.8.8 4.2.2.2\n')
+            udhcpd_file.write("option subnet " + self.extension_settings.get('range_extension', 'netmask') + '\n')
+            udhcpd_file.write("opt router " + self.extension_settings.get('range_extension', 'router') + '\n')
+            udhcpd_file.write('option lease 864000\n')
+
+        hostapd_file = ConfigObj('/etc/hostapd/hostapd.conf')
+        hostapd_file['ssid'] = self.extension_settings.get('range_extension', 'ssid')
+        hostapd_file['channel'] = self.extension_settings.get('range_extension','channel')
+        if self.extension_settings.get('range_extension', 'pass_proc'):
+            hostapd_file['wpa'] = self.extension_settings.get('range_extension', 'wpa')
+            hostapd_file['wpa_passphrase'] = self.extension_settings.get('range_extension', 'wpa_passphrase')
+            hostapd_file['wpa_key_mgmt'] = 'WPA-PSK'
+            hostapd_file['wpa_pairwise'] = 'TKIP'
+            hostapd_file['rsn_pairwise'] = 'CCMP'
+        else:
+            hostapd_file['wpa'] = ''
+            hostapd_file['wpa_passphrase'] = ''
+            hostapd_file['wpa_key_mgmt'] = ''
+            hostapd_file['wpa_pairwise'] = ''
+            hostapd_file['rsn_pairwise'] = ''
+
+        hostapd_file.write()
+        startup.update()
+        
         self.write('Done')
         self.finish()
 
