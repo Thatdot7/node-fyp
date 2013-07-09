@@ -222,15 +222,16 @@
 											{% for at_job in at_jobs %}
 											<tr class="at_{{ at_job[0] }}">
 												<td class="task-info">
-													<h2>{{ str(at_job[1]) }}</h2>
+													<h4>{{ str(at_job[1]) }}</h4>
 													<p>Id: {{ at_job[0] }}</p>
 													<p>
-														Plug 1: {% if at_job[2][0] == "1"%}On{% elif at_job[2][0] == "2" %}Ignore{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
+														<small>Plug 1: {% if at_job[2][0] == "1"%}On{% elif at_job[2][0] == "2" %}Ignore{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
 														Plug 2: {% if at_job[2][1] == "1"%}On{% elif at_job[2][1] == "2" %}Ignore{% else %}Off{% end %}
+														</small>
 													</p>
 													<p>
-														Plug 3: {% if at_job[2][2] == "1"%}On{% elif at_job[2][2] == "2" %}Ignore{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
-														Plug 4: {% if at_job[2][3] == "1"%}On{% elif at_job[2][3] == "2" %}Ignore{% else %}Off{% end %}
+														<small>Plug 3: {% if at_job[2][2] == "1"%}On{% elif at_job[2][2] == "2" %}Ignore{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
+														Plug 4: {% if at_job[2][3] == "1"%}On{% elif at_job[2][3] == "2" %}Ignore{% else %}Off{% end %}</small>
 													</p>
 													<p>Scheduled for {{ at_job[3] }}:{{ at_job[4] }}</p>
 												</td>
@@ -262,12 +263,12 @@
 												<td class="task-info">
 													<h4>{{ cron_job[1].replace("_"," ") }}</h4>
 													<p>
-														Plug 1: {% if cron_job[0][5][0] == "1"%}On{% elif cron_job[0][5][0] == "2"%}Ignore{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
-														Plug 2: {% if cron_job[0][5][1] == "1"%}On{% elif cron_job[0][5][1] == "2"%}Ignore{% else %}Off{% end %}
+														<small>Plug 1: {% if cron_job[0][5][0] == "1"%}On{% elif cron_job[0][5][0] == "2"%}Ignore{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
+														Plug 2: {% if cron_job[0][5][1] == "1"%}On{% elif cron_job[0][5][1] == "2"%}Ignore{% else %}Off{% end %}</small>
 													</p>
 													<p>
-														Plug 3: {% if cron_job[0][5][2] == "1"%}On{% elif cron_job[0][5][2] == "2"%}Ignore{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
-														Plug 4: {% if cron_job[0][5][3] == "1"%}On{% elif cron_job[0][5][3] == "2"%}Ignore{% else %}Off{% end %}
+														<small>Plug 3: {% if cron_job[0][5][2] == "1"%}On{% elif cron_job[0][5][2] == "2"%}Ignore{% else %}Off{% end %}&nbsp&nbsp&nbsp&nbsp&nbsp
+														Plug 4: {% if cron_job[0][5][3] == "1"%}On{% elif cron_job[0][5][3] == "2"%}Ignore{% else %}Off{% end %}</small>
 													</p>
 													<p>Scheduled for {{ cron_job[0][1] }}:{{ cron_job[0][0] }}</p>
 													<p>Repeat on:{% for days in cron_job[0][4] %}
