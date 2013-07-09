@@ -181,7 +181,8 @@ class Application(tornado.web.Application):
             (r"/ws_schedule", WebSocketScheduleHandler),
             (r"/settings", SettingsHandler),
             (r"/ws_settings", WebSocketSettingsHandler),
-            (r"/wifiwizard", WifiWizardHandler)
+            (r"/wifiwizard", WifiWizardHandler),
+            (r"/extend", ExtendWizardHandler)
         ]
         
         settings = dict(
