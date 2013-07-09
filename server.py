@@ -124,14 +124,50 @@ class NetworkConnection(threading.Thread):
 
 
     def run(self):
-        if self.data[0] == "saved":  
+        if self.data[0] == "connect":  
             subprocess.call("wpa_cli select_network " + self.data[1], shell=True)
-            for i in range(5):
-                time.sleep(3)
-                output = subprocess.check_output("wpa_cli status", shell=True)
-                if "wpa_state=COMPLETED" in output:
-                    subprocess.call("wpa_cli save_config", shell=True)
-                    break
+        elif self.data[0] == "wps-push":
+            subprocess.call("wpa_cli wps_pbc any", shell=True)
+        elif self.data[0] == "wps-pin":
+            subprocess.call("wpa_cli wps_pin any " + self.data[1], shell=True)
+        else:
+            print self.data
+            networkfile = open("/etc/wpa_supplicant/wpa_supplicant.conf", "a")
+            print "in the writting routing"
+            networkfile.write("network={\n")
+
+            if self.data[0] == "wpa":
+                networkfile.write('\tssid="' + self.data[1] + '"\n')
+                networkfile.write('\tpsk="' + self.data[2] + '"\n')
+            
+            elif self.data[0] == "eap":
+                networkfile.write('\tssid="' + self.data[1] + '"\n')
+                networkfile.write('\tidentity="' + self.data[2] + '"\n')
+                networkfile.write('\tpassword="' + self.data[3] + '"\n')
+            
+            else:
+                networkfile.write('\tssid="' + self.data[1] + '"\n')
+                networkfile.write('\tkey_mgmt=NONE\n')
+
+            networkfile.write("}\n")
+            networkfile.close()
+
+                
+
+##            print 'File Write Done'
+##            network_id = subprocess.check_output("wpa_cli add_network", shell=True)
+##            network_id = network_id.split('\n')
+##            network_id = int(network_id[1]) - 1
+##            
+##            #etwork_id = subprocess.check_output("wpa_cli remove_network " + str(network_id + 1), shell=True)
+##            subprocess.call("wpa_cli select_network " + str(network_id), shell=True)
+        
+        for i in range(5):
+            time.sleep(3)
+            output = subprocess.check_output("wpa_cli status", shell=True)
+            if "wpa_state=COMPLETED" in output:
+                subprocess.call("wpa_cli save_config", shell=True)
+                break
 
         self.callback('Finish up')
         return    
@@ -363,20 +399,42 @@ class WifiWizardHandler(tornado.web.RequestHandler):
                 if ("[CURRENT]" in self.saved[i]) and self.state:
                     self.current = self.saved[i][1]
 
-        print self.saved
-        print self.current
 
-        #self.write(value)
         self.render('net_wizard.html', current_status = self.status,
                     scan_group = value, current = self.current, saved_group = self.saved)
         
     @tornado.web.asynchronous
     def post(self):
+	print 'POST handler'
+	method = self.get_argument('method','')
         net_cat = self.get_argument('net_cat', '')
-                
-        if net_cat == "saved":
+        
+        if method == "delete":
+	    net_id = self.get_argument('id','')
+	    subprocess.call("wpa_cli remove_network " + net_id, shell=True)
+	    subprocess.call("wpa_cli save_config", shell=True)
+	    self.post_finish(None)
+	elif method == "connect":
+            net_id = self.get_argument('id','')
+            NetworkConnection([method, net_id], self.post_finish).start()
+        elif method == "wpa":
             net_id = self.get_argument('id', '')
-            NetworkConnection([net_cat, net_id], self.post_finish).start()
+            net_pass = self.get_argument('pass', '')
+            NetworkConnection([method, net_id, net_pass], self.post_finish).start()
+        elif method == "eap":
+            net_id = self.get_argument('id', '')
+            net_username = self.get_argument('identity', '')
+            net_pass = self.get_argument('pass', '')
+            NetworkConnection([method, net_id, net_username, net_pass], self.post_finish).start()
+        elif method == "wps-push":
+            NetworkConnection([method], self.post_finish).start()
+        elif method == "wps-pin":
+            net_pin = self.get_argument('pin','')
+            NetworkConnection([method, net_pin], self.post_finish).start()
+        else:
+            net_id = self.get_argument('id', '')
+            print net_id
+            NetworkConnection([method, net_id], self.post_finish).start()
 
     def post_finish(self, value):
         print 'In post_finish'

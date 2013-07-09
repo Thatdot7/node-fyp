@@ -86,21 +86,21 @@
 										{% for network in saved_group %}
 										<div class="accordion-group">
 											<div class="accordion-heading">
-												<a class="accordion-toggle" data-toggle="collapse" data-parent="#saved_list" href="#saved-{{ network[0] }}">
+												<a class="accordion-toggle" data-toggle="collapse" data-parent="#saved_list" href="#saved_-_{{ network[0] }}">
 													{{ network[1] }}
 													{% if network[1] == current %}
 													<span class="label label-success pull-right">Connected</span>
 													{% end %}
 												</a>
 											</div>
-											<div id="saved-{{ network[0] }}" class="accordion-body collapse">
+											<div id="saved_-_{{ network[0] }}" class="accordion-body collapse">
 												<div class="accordion-inner">
 													<form>
 														<div class="control-group">
 															{% if network[1] != current %}
 															<button class="btn btn-primary connect" data-loading-text="Connecting..." autocomplete="off" type="button">Connect</button>
+															<button class="btn btn-danger delete" type="button">Delete</button>
 															{% end %}
-															<button class="btn btn-danger" type="button">Delete</button>
 														</div>
 													</form>
 												</div>
@@ -123,14 +123,14 @@
 										{% for network in scan_group %}
 										<div class="accordion-group">
 											<div class="accordion-heading">
-												<a class="accordion-toggle" data-toggle="collapse" data-parent="#scan_list" href="#scan-{{ network[4].replace(" ", "_") }}">
+												<a class="accordion-toggle" data-toggle="collapse" data-parent="#scan_list" href="#scan_-_{{ network[4].replace(" ", "_") }}">
 													{{ network[4] }}
 													{% if network[4] == current %}
 													<span class="label label-success pull-right">Connected</span>
 													{% end %}
 												</a>
 											</div>
-											<div id="scan-{{ network[4].replace(" ", "_")}}" class="accordion-body collapse">
+											<div id="scan_-_{{ network[4].replace(" ", "-_-")}}" class="accordion-body collapse">
 												<div class="accordion-inner">
 													<form>
 														<div class="control-group">
@@ -140,11 +140,34 @@
 																<div class="bar" style="width: {{ network[2] }}%"></div>
 															</div>
 															{% if network[4] != current %}
+															{% if 'WPA' in network[3] %}
+															{% if 'EAP' not in network[3] %}
 															<label class="control-label" >Passphrase:</label>
 															<div class="input-append">
 																<input type="password" placeholder="Enter the Passphrase">
-																<button class="btn btn-primary" type="button">Connect</button>
+																<button data-loading-text="Connecting..." class="btn btn-primary connect wpa" type="button">Connect</button>
 															</div>
+															{% else %}
+															<label class="control-label" >Identity:</label>
+															<input class="identity" type="text" placeholder="Enter your identity">
+															<label class="control-label" >Password:</label>
+															<input class="pass" type="password" placeholder="Enter your password">
+															<p>
+																<button data-loading-text="Connecting..." class="btn btn-primary connect eap" type="button">Connect</button>
+															</p>
+															{% end %}
+															{% else %}
+															<p>This is an open network. Connect at your own risk.</p>
+															<button data-loading-text="Connecting..." class="btn btn-primary connect open" type="button">Connect</button>
+															{% end %}
+															{% if 'WPS' in network[3] %}
+															<label class="control-label">WPS Controls</label>
+															<div class="input-append">
+																<input type="text" class="span2" placeholder="PIN">
+																<button class="btn connect wps-pin">PIN</button>
+																<button class="btn connect wps-push">Push Button</button>
+															</div>
+															{% end %}
 															{% end %}
 														</div>
 													</form>
