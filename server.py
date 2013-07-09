@@ -292,7 +292,7 @@ class WebSocketScheduleHandler(tornado.websocket.WebSocketHandler):
 	    # Delete a repeated task
             list = cron.find_comment(data["name"])
             for cron_job in list:
-                cron.remove(cron_job)
+                cron.remove_all(cron_job)
             cron.write()
               
         if data["method"] == "3":
@@ -429,17 +429,9 @@ class WifiWizardHandler(tornado.web.RequestHandler):
         self.write('Finish It')
         self.finish()
             
-
-### Handles the WebSockets for "/wifiwizard"
-##class WebSocketWifiWizardHandler(tornado.websocket.WebSocketHandler):
-##    def open(self):
-##        
-##    
-##    def on_message(self, message):
-##        
-##        
-##    def on_close(self):
-
+class ExtendWizardHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render('extend.html')
         
 
 def main():
