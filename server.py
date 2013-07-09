@@ -27,7 +27,7 @@ cron = CronTab()
 
 job_list = []
 
-define("port", default=45381, help="run on the given port", type=int)
+define("port", default=80, help="run on the given port", type=int)
 
 # Access to 'config/general.ini' to read and write preferences
 class Parser:
@@ -431,8 +431,11 @@ class WifiWizardHandler(tornado.web.RequestHandler):
         self.finish()
             
 class ExtendWizardHandler(tornado.web.RequestHandler):
+    
     def get(self):
-        self.render('extend.html')
+        wifi_status = subprocess.check_output("wpa_cli status", shell=True)
+        wifi_status = wifi_status.split('\n')
+        self.render('extend.html', wifi_status = wifi_status)
         
 
 def main():

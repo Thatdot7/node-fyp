@@ -48,7 +48,9 @@
 							<form autocomplete="off">
 								<legend>Current Main Wifi Settings</legend>
 								<div class="well">
-									Insert something here
+									{% for line in wifi_status %}
+									{{ line }}<br/>
+									{% end %}
 								</div>
 								<legend>Current Wifi Extender Settings</legend>
 								<div class="well">
@@ -93,11 +95,11 @@
 								</select>
 								<legend>Security Settings</legend>
 								<label class="checkbox">
-									<input type="checkbox" checked>
+									<input id="pass-proc" type="checkbox" checked>
 									Enabled Password Protection
 								</label>
 								<label class="control-label">Type:</label>
-								<select class="span3">
+								<select class="span3" id="pass-type">
 									<option value="1">WPA</option>
 									<option value="1">WPA2</option>
 								</select>
@@ -108,7 +110,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="accordion-group" id="dhcp">
+				<div class="accordion-group" id="dhcp-group">
 					<div class="accordion-heading">
 						<a class="accordion-toggle" data-toggle="collapse" data-parent="#settings" href="#dhcp">
 							DHCP Settings
