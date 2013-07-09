@@ -95,7 +95,7 @@
 											</div>
 											<div id="saved_-_{{ network[0] }}" class="accordion-body collapse">
 												<div class="accordion-inner">
-													<form>
+													<form autocomplete="off">
 														<div class="control-group">
 															{% if network[1] != current %}
 															<button class="btn btn-primary connect" data-loading-text="Connecting..." autocomplete="off" type="button">Connect</button>
@@ -132,7 +132,7 @@
 											</div>
 											<div id="scan_-_{{ network[4].replace(" ", "-_-")}}" class="accordion-body collapse">
 												<div class="accordion-inner">
-													<form>
+													<form autocomplete="off">
 														<div class="control-group">
 															<label class="control-label">Flags: {{ network[3] }}</label>
 															<label class="control-label">Signal Strength:</label>
@@ -148,6 +148,8 @@
 																<button data-loading-text="Connecting..." class="btn btn-primary connect wpa" type="button">Connect</button>
 															</div>
 															{% else %}
+															<p> Not currently compatiable with the Smart PowerBox</p>
+															<!--
 															<label class="control-label" >Identity:</label>
 															<input class="identity" type="text" placeholder="Enter your identity">
 															<label class="control-label" >Password:</label>
@@ -155,7 +157,10 @@
 															<p>
 																<button data-loading-text="Connecting..." class="btn btn-primary connect eap" type="button">Connect</button>
 															</p>
+															-->
 															{% end %}
+															{% elif 'WEP' in network[3] %}
+															<p> Not currently compatiable with the Smart PowerBox</p>
 															{% else %}
 															<p>This is an open network. Connect at your own risk.</p>
 															<button data-loading-text="Connecting..." class="btn btn-primary connect open" type="button">Connect</button>

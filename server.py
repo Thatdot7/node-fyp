@@ -131,27 +131,23 @@ class NetworkConnection(threading.Thread):
         elif self.data[0] == "wps-pin":
             subprocess.call("wpa_cli wps_pin any " + self.data[1], shell=True)
         else:
-            print self.data
-            networkfile = open("/etc/wpa_supplicant/wpa_supplicant.conf", "a")
-            print "in the writting routing"
-            networkfile.write("network={\n")
+            network_id = subprocess.check_output("wpa_cli add_network", shell=True)
+            network_id = network_id.split('\n')
+            network_id = network_id[1]
 
             if self.data[0] == "wpa":
-                networkfile.write('\tssid="' + self.data[1] + '"\n')
-                networkfile.write('\tpsk="' + self.data[2] + '"\n')
+		subprocess.call('echo "set_network ' + network_id + ' ssid \\"' + self.data[1] + '\\"" | wpa_cli', shell=True)
+		subprocess.call('echo "set_network ' + network_id + ' psk \\"' + self.data[2] + '\\"" | wpa_cli', shell=True)
+                
+	    elif self.data[0] == "eap":
+		subprocess.call('echo "set_network ' + network_id + ' ssid \\"' + self.data[1] + '\\"" | wpa_cli', shell=True)
+		subprocess.call('echo "identity ' + network_id + ' \\"' + self.data[2] + '\\"" | wpa_cli', shell=True)
+		subprocess.call('echo "password ' + network_id + ' \\"' + self.data[3] + '\\"" | wpa_cli', shell=True)
+                
+	    else:
+		subprocess.call('echo "set_network ' + network_id + ' ssid \\"' + self.data[1] + '\\"" | wpa_cli', shell=True)
+		subprocess.call('echo "set_network ' + network_id + ' key_mgmt NONE" | wpa_cli', shell=True)
             
-            elif self.data[0] == "eap":
-                networkfile.write('\tssid="' + self.data[1] + '"\n')
-                networkfile.write('\tidentity="' + self.data[2] + '"\n')
-                networkfile.write('\tpassword="' + self.data[3] + '"\n')
-            
-            else:
-                networkfile.write('\tssid="' + self.data[1] + '"\n')
-                networkfile.write('\tkey_mgmt=NONE\n')
-
-            networkfile.write("}\n")
-            networkfile.close()
-
                 
 
 ##            print 'File Write Done'
