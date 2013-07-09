@@ -63,16 +63,16 @@ var SocketHandler = {
 				id = data.id;
 				var node = '<tr class="at_' + id + '">' +
 								'<td class="task-info">' +
-									'<h2>' + name + '</h2>' +
+									'<h4>' + name + '</h4>' +
 										'<p>Id: ' + id + '</p>' +
-										'<p>' +
+										'<p><small>' +
 											'Plug 1: ' + plugs1 + '&nbsp&nbsp&nbsp&nbsp&nbsp' +
 											'Plug 2: ' + plugs2 +
-									'</p>' +
-									'<p>' +
+									'</small></p>' +
+									'<p><small>' +
 										'Plug 3: ' + plugs3 + '&nbsp&nbsp&nbsp&nbsp&nbsp' +
 										'Plug 4: ' + plugs4 +
-									'</p>' +
+									'</p></small>' +
 									'<p>Scheduled for ' + hours + ':' + minutes + '</p>' +
 								'</td>' +
 								'<td width="40px" height="159px">' +
@@ -110,15 +110,15 @@ var SocketHandler = {
 				}
 				var node = '<tr class="cron_' + data.name + '">' +
 								'<td class="task-info">' +
-									'<h2>' + name + '</h2>' +
-										'<p>' +
+									'<h4>' + name + '</h4>' +
+										'<p><small>' +
 											'Plug 1: ' + plugs1 + '&nbsp&nbsp&nbsp&nbsp&nbsp' +
 											'Plug 2: ' + plugs2 +
-									'</p>' +
-									'<p>' +
+									'</small></p>' +
+									'<p><small>' +
 										'Plug 3: ' + plugs3 + '&nbsp&nbsp&nbsp&nbsp&nbsp' +
 										'Plug 4: ' + plugs4 +
-									'</p>' +
+									'</small></p>' +
 									'<p>Scheduled for ' + hours + ':' + minutes + '</p>' +
 									'<p>Repeat on:'+ dow +'</p>' +
 								'</td>' +
