@@ -64,7 +64,7 @@
 												{% end %}
 											</p>
 										</div>
-										<button class="btn btn-primary" id="scan-start">Scan For Wireless Networks</button>
+										<p><button data-loading-text="Refreshing..." class="btn btn-primary" id="scan-start">Refresh Lists</button></p>
 										<p><a class="btn btn-inverse" href="/settings">Back to Settings</a></p>
 									</form>
 								</div>
@@ -123,7 +123,7 @@
 										{% for network in scan_group %}
 										<div class="accordion-group">
 											<div class="accordion-heading">
-												<a class="accordion-toggle" data-toggle="collapse" data-parent="#scan_list" href="#scan_-_{{ network[4].replace(" ", "_") }}">
+												<a class="accordion-toggle" data-toggle="collapse" data-parent="#scan_list" href="#scan_-_{{ network[4].replace(" ", "-_-") }}">
 													{{ network[4] }}
 													{% if network[4] == current %}
 													<span class="label label-success pull-right">Connected</span>

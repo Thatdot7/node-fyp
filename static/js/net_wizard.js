@@ -45,4 +45,8 @@ $(document).ready(function() {
 			//console.log(data);
 		});
 	});
+	$("#scan-start").on('click', function(){
+		$(this).button('loading');
+		location.reload();
+	});
 });

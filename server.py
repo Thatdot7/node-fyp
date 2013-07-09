@@ -148,15 +148,7 @@ class NetworkConnection(threading.Thread):
 		subprocess.call('echo "set_network ' + network_id + ' ssid \\"' + self.data[1] + '\\"" | wpa_cli', shell=True)
 		subprocess.call('echo "set_network ' + network_id + ' key_mgmt NONE" | wpa_cli', shell=True)
             
-                
-
-##            print 'File Write Done'
-##            network_id = subprocess.check_output("wpa_cli add_network", shell=True)
-##            network_id = network_id.split('\n')
-##            network_id = int(network_id[1]) - 1
-##            
-##            #etwork_id = subprocess.check_output("wpa_cli remove_network " + str(network_id + 1), shell=True)
-##            subprocess.call("wpa_cli select_network " + str(network_id), shell=True)
+            subprocess.call("wpa_cli select_network " + network_id, shell=True)
         
         for i in range(5):
             time.sleep(3)
@@ -202,7 +194,7 @@ class Application(tornado.web.Application):
 # Generates the webpage for "/" and "/control"
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        config = Parser('config/general.ini')
+        config = Parser('/home/pi/node-fyp/config/general.ini')
         plugs = [["plug1",config.get('plug_names', 'plug1'), "light1", "11"],
                 ["plug2", config.get('plug_names', 'plug2'), "light2", "12"],
                 ["plug3", config.get('plug_names', 'plug3'), "light3", "13"],
@@ -337,7 +329,7 @@ class SettingsHandler(tornado.web.RequestHandler):
     def get(self):
         plug_names = []
         
-        config = Parser('config/general.ini')
+        config = Parser('/home/pi/node-fyp/config/general.ini')
         plug_names.append(config.get('plug_names', 'plug1'))
         plug_names.append(config.get('plug_names', 'plug2'))
         plug_names.append(config.get('plug_names', 'plug3'))
@@ -351,7 +343,7 @@ class SettingsHandler(tornado.web.RequestHandler):
 # Handles the WebSockets for "/settings"
 class WebSocketSettingsHandler(tornado.websocket.WebSocketHandler):
     connections = []
-    config = Parser('config/general.ini')
+    config = Parser('/home/pi/node-fyp/config/general.ini')
     def open(self):
         self.connections.append(self)
 
