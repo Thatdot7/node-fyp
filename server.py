@@ -471,7 +471,7 @@ class ExtendWizardHandler(tornado.web.RequestHandler):
         hostapd_file = ConfigObj('/etc/hostapd/hostapd.conf')
         hostapd_file['ssid'] = self.extension_settings.get('range_extension', 'ssid')
         hostapd_file['channel'] = self.extension_settings.get('range_extension','channel')
-        if self.extension_settings.get('range_extension', 'pass_proc'):
+        if self.extension_settings.get('range_extension', 'pass_proc') == 'true':
             hostapd_file['wpa'] = self.extension_settings.get('range_extension', 'wpa')
             hostapd_file['wpa_passphrase'] = self.extension_settings.get('range_extension', 'wpa_passphrase')
             hostapd_file['wpa_key_mgmt'] = 'WPA-PSK'
@@ -485,6 +485,26 @@ class ExtendWizardHandler(tornado.web.RequestHandler):
             hostapd_file['rsn_pairwise'] = ''
 
         hostapd_file.write()
+        with open('/etc/hostapd/hostapd.conf', 'r+') as hostapd_conf:
+            text = hostapd_conf.read()
+            text = text.replace(' = ', '=')
+            hostapd_conf.seek(0)
+            hostapd_conf.write(text)
+            hostapd_conf.truncate()
+
+        with open('/etc/network/interfaces', 'w') as network_conf:
+            network_conf.write('auto lo\n\n')
+            network_conf.write('iface lo inet loopback\n')
+            network_conf.write('iface eth0 inet dhcp\n\n')
+            network_conf.write('allow-hotplug wlan0\n')
+            network_conf.write('iface wlan0 inet static\n')
+            network_conf.write('\taddress '+ self.extension_settings.get('range_extension', 'router') +'\n')
+            network_conf.write('\tnetmask '+ self.extension_settings.get('range_extension', 'netmask') +'\n\n')
+            network_conf.write('allow-hotplug wlan1\n')
+            network_conf.write('iface wlan1 inet manual\n')
+            network_conf.write('wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\n\n')
+            network_conf.write('iface default inet dhcp\n')
+
         startup.update()
         
         self.write('Done')
