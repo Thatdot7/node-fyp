@@ -17,7 +17,7 @@ var SocketHandler = {
 			}
 			
 			if(data.method == "2"){
-				id_tag = ".cron_" + data.name;
+				id_tag = ".cron_" + data.name.replace(" ","_");
 				console.log(id_tag);
 				$(id_tag).remove();
 				return;
