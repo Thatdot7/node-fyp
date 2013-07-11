@@ -27,7 +27,7 @@ cron = CronTab()
 
 job_list = []
 
-define("port", default=80, help="run on the given port", type=int)
+define("port", default=45381, help="run on the given port", type=int)
 
 # Access to 'config/general.ini' to read and write preferences
 class Parser:
