@@ -35,10 +35,101 @@
     		<h1>Range Extension Wizard</h1>
     	</header>
     	<div class="row-margin">
-		
+		<div class="row-fluid">
+			<div class="span6 accordion" id="control">
+				<div class="accordion-group">
+					<div class="accordion-heading">
+						<a class="accordion-toggle" data-toggle="collapse" data-parent="#control" href="#main-control">
+							Control Panel
+						</a>
+					</div>
+					<div id="main-control" class="accordion-body collapse">
+						<div class="accordion-inner">
+							<form autocomplete="off">
+								<legend>Current Main Wifi Settings</legend>
+								<div class="well">
+									Insert something here
+								</div>
+								<legend>Current Wifi Extender Settings</legend>
+								<div class="well">
+									Insert more stuff here
+								</div>
+								<p><a href="settings" class="btn btn-inverse">Back to Settings</a></p>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="span6 accordion" id="settings">
+				<div class="accordion-group">
+					<div class="accordion-heading">
+						<a class="accordion-toggle" data-toggle="collapse" data-parent="#settings" href="#general">
+							Wifi Extender Settings
+						</a>
+					</div>
+					<div id="general" class="accordion-body collapse">
+						<div class="accordion-inner">
+							<form autocomplete="off">
+								<label class="checkbox">
+									<input type="checkbox" checked>
+									Enabled Wifi Extender
+								</label>
+								<legend>Signal Settings</legend>
+								<label class="control-label">SSID:</label>
+								<input type="text" placeholder="Enter the desired SSID">
+								<label class="control-label">Channel:</label>
+								<select class="span2">
+									<option value="1">1</option>
+									<option value="2">2</option>
+									<option value="3">3</option>
+									<option value="4">4</option>
+									<option value="5">5</option>
+									<option value="6">6</option>
+									<option value="7">7</option>
+									<option value="8">8</option>
+									<option value="9">9</option>
+									<option value="10">10</option>
+									<option value="11">11</option>
+								</select>
+								<legend>Security Settings</legend>
+								<label class="checkbox">
+									<input type="checkbox" checked>
+									Enabled Password Protection
+								</label>
+								<label class="control-label">Type:</label>
+								<select class="span2">
+									<option value="1">WPA</option>
+									<option value="1">WPA2</option>
+								</select>
+								<label class="control-label">Passphrase:</label>
+								<input type="password">
+								
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="accordion-group">
+					<div class="accordion-heading">
+						<a class="accordion-toggle" data-toggle="collapse" data-parent="#settings" href="#dhcp">
+							DHCP Settings
+						</a>
+					</div>
+					<div id="dhcp" class="accordion-body collapse">
+						<div class="accordion-inner">
+							<label>Start of IP Range</label>
+							<form>
+								<input type="text" class="ip-block">
+								<input type="text" class="ip-block">
+								<input type="text" class="ip-block">
+								<input type="text" class="ip-block">
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 	<script src="{{ static_url("js/jquery-2.0.2.min.js") }}"></script>
 	<script src="{{ static_url("js/bootstrap.min.js") }}"></script>
-	<script src="{{ static_url("js/index.js") }}"></script>
     </body>
 </html>
