@@ -1,0 +1,16 @@
+header {
+	padding: 2%;
+}
+
+.row-margin {
+	margin-left: 5%;
+	margin-right: 5%;
+}
+
+input.ip-block {
+	width: 1.8em;
+}
+
+select.ip-block {
+	width: 4.5em;
+}
