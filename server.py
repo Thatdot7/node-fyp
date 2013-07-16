@@ -27,16 +27,24 @@ cron = CronTab()
 
 job_list = []
 
-define("port", default=80, help="run on the given port", type=int)
+define("port", default=45381, help="run on the given port", type=int)
 
 # Access to 'config/general.ini' to read and write preferences
 class Parser:
     def __init__(self, file):
         self.parser = ConfigObj(file)
-    def get(self, section, item):
-        return self.parser[section][item]
-    def write(self, section, item, value):
-        self.parser[section][item] = value
+    def get(self, section, item=None):
+        if item != None:
+            return self.parser[section][item]
+        else:
+            return self.parser[section]
+        
+    def write(self, section, value, item=None):
+        if item != None:
+            self.parser[section][item] = value
+        else:
+            self.parser[item] = value
+            
         self.parser.write()
 
 # Handles the storing of task details for the "atd" package
@@ -222,12 +230,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         
 	# When a client changes something, the server will execute the change, then will transmit that change to all 
 	# the clients connected to the WebSocket
-        if message[0] == "1":
-#            global plug_status
-#            plug_status = plug_status + plug_status[:(int(message[1])-1)] + message[2] + plug_status[(int(message[1])):]
-#            plug_status = plug_status[4:]
-#            print plug_status
-            
+        if message[0] == "1":           
             if message[2] == "1":
                  GPIO_on.run_script(message[1])
             else:
@@ -353,7 +356,7 @@ class WebSocketSettingsHandler(tornado.websocket.WebSocketHandler):
         print data
 
         if data['method'] == "0":
-            self.config.write('plug_names', data['id'], data['value'])
+            self.config.write('plug_names', data['value'], data['id'])
 
             
         for connection in self.connections:
@@ -394,7 +397,6 @@ class WifiWizardHandler(tornado.web.RequestHandler):
         
     @tornado.web.asynchronous
     def post(self):
-	print 'POST handler'
 	method = self.get_argument('method','')
         net_cat = self.get_argument('net_cat', '')
         
@@ -431,12 +433,33 @@ class WifiWizardHandler(tornado.web.RequestHandler):
         self.finish()
             
 class ExtendWizardHandler(tornado.web.RequestHandler):
+    extension_settings = Parser('/home/pi/node-fyp/config/general.ini')
     
     def get(self):
         wifi_status = subprocess.check_output("wpa_cli status", shell=True)
         wifi_status = wifi_status.split('\n')
-        self.render('extend.html', wifi_status = wifi_status)
+        extend_status = []
+        extend_status.append("Enabled: " + self.extension_settings.get('range_extension', 'enable'))
+        extend_status.append("SSID: " + self.extension_settings.get('range_extension', 'ssid'))
+        extend_status.append("Channel: " + self.extension_settings.get('range_extension', 'channel'))
+        extend_status.append("Address: " + self.extension_settings.get('range_extension', 'router'))
+        extend_status.append("DHCP Range: " + self.extension_settings.get('range_extension', 'start') + " - " + self.extension_settings.get('range_extension', 'end'))
+        extend_status.append("Password Protection: " + self.extension_settings.get('range_extension', 'pass_proc'))
+        self.render('extend.html', wifi_status = wifi_status, extend_status = extend_status)
         
+    def post(self):
+        self.extension_settings.write('range_extension', self.get_argument('enable', ''), 'enable')
+        self.extension_settings.write('range_extension', self.get_argument('ssid', ''), 'ssid')
+        self.extension_settings.write('range_extension', self.get_argument('channel', ''), 'channel')
+        self.extension_settings.write('range_extension', self.get_argument('pass-proc', ''), 'pass_proc')
+        self.extension_settings.write('range_extension', self.get_argument('WPA', ''), 'wpa')
+        self.extension_settings.write('range_extension', self.get_argument('psk', ''), 'wpa_passphrase')
+        self.extension_settings.write('range_extension', self.get_argument('router', ''), 'router')
+        self.extension_settings.write('range_extension', self.get_argument('start', ''), 'start')
+        self.extension_settings.write('range_extension', self.get_argument('end', ''), 'end')
+        self.extension_settings.write('range_extension', self.get_argument('netmask', ''), 'netmask')
+        self.write('Done')
+        self.finish()
 
 def main():
     tornado.options.parse_command_line()

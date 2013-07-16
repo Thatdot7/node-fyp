@@ -54,8 +54,11 @@
 								</div>
 								<legend>Current Wifi Extender Settings</legend>
 								<div class="well">
-									Insert more stuff here
+									{% for line in extend_status %}
+									{{ line }}<br/>
+									{% end %}
 								</div>
+								<p><a id="save" class="btn btn-primary">Save and Restart Device</a></p>
 								<p><a href="settings" class="btn btn-inverse">Back to Settings</a></p>
 							</form>
 						</div>
@@ -78,9 +81,9 @@
 								</label>
 								<legend>Signal Settings</legend>
 								<label class="control-label">SSID:</label>
-								<input type="text" placeholder="Enter the desired SSID">
+								<input id="ssid" type="text" placeholder="Enter the desired SSID">
 								<label class="control-label">Channel:</label>
-								<select class="span3">
+								<select class="span3" id="channel">
 									<option value="1">1</option>
 									<option value="2">2</option>
 									<option value="3">3</option>
@@ -104,7 +107,7 @@
 									<option value="1">WPA2</option>
 								</select>
 								<label class="control-label">Passphrase:</label>
-								<input type="password">
+								<input type="password" id="pass">
 								
 							</form>
 						</div>
