@@ -258,8 +258,8 @@ class ScheduleHandler(tornado.web.RequestHandler):
             list[index] = list[index].render()
             list[index] = list[index].split(' # ')
             list[index][0] = list[index][0].split(' ', 5)
-            list[index][0][0] = ("0" + list[index][0][0])[:2]
-            list[index][0][1] = ("0" + list[index][0][1])[:2]
+            list[index][0][0] = ("0" + list[index][0][0])[1:]
+            list[index][0][1] = ("0" + list[index][0][1])[1:]
             list[index][0][4] = list[index][0][4].split(',')
             list[index][0][5] = list[index][0][5][46:]
         print list
@@ -296,7 +296,7 @@ class WebSocketScheduleHandler(tornado.websocket.WebSocketHandler):
 	    # Delete a repeated task
             list = cron.find_comment(data["name"])
             for cron_job in list:
-                cron.remove_all(cron_job)
+		cron.remove(cron_job)
             cron.write()
               
         if data["method"] == "3":

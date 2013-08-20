@@ -65,7 +65,7 @@ while True:
 
 	# Check if there is a "source" field. If there isn't, put on in
 	# then send the device information to the relevant address
-	if msg,get('source'):
+	if msg.get('source'):
 		s.sendto(json.dumps(return_msg), source)
 	else:
 		msg['source'] = address
