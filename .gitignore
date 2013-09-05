@@ -1,6 +1,6 @@
 *.pyc
 *.db
 *.o
-
+*.csv
 *.db-wal
 *.db-shm
