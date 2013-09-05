@@ -1,2 +1,6 @@
 *.pyc
 *.db
+*.o
+
+*.db-wal
+*.db-shm

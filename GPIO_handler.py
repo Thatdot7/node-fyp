@@ -1,9 +1,6 @@
 import RPi.GPIO as GPIO
 import sys
-
-# Assigns which GPIO pins controls the plugs
-# The pin numbers control plug 1,2,3,4 respectively
-pin_translate = [3,5,7,11]
+from configobj import ConfigObj
 
 
 def write(pins):
@@ -11,8 +8,11 @@ def write(pins):
     GPIO.setmode(GPIO.BOARD)
     GPIO.setwarnings(False)
 
+    config_file = ConfigObj("/home/pi/node-fyp/config/general.ini")
+    pin_translate = config_file["pin_settings"]["outlets"]
+
     for index in range(len(pins)):
-        pin = pin_translate[index]
+        pin = int(pin_translate[index])
         GPIO.setup(pin, GPIO.OUT)
         if pins[index] == "1":
             GPIO.output(pin, GPIO.HIGH)
@@ -24,15 +24,16 @@ def read():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setwarnings(False)
 
-    GPIO.setup(21, GPIO.IN)
-    GPIO.setup(22, GPIO.IN)
-    GPIO.setup(23, GPIO.IN)
-    GPIO.setup(24, GPIO.IN)
+    config_file = ConfigObj("/home/pi/node-fyp/config/general.ini")
+    read_pins = config_file["pin_settings"]["read_pins"]
 
-    plug1 = str(GPIO.input(21))
-    plug2 = str(GPIO.input(22))
-    plug3 = str(GPIO.input(23))
-    plug4 = str(GPIO.input(24))
+    for pin in read_pins:
+        GPIO.setup(int(pin), GPIO.IN)
+
+    plug1 = str(GPIO.input(int(read_pins[0])))
+    plug2 = str(GPIO.input(int(read_pins[1])))
+    plug3 = str(GPIO.input(int(read_pins[2])))
+    plug4 = str(GPIO.input(int(read_pins[3])))
 
     print "%s%s%s%s" %(plug1, plug2, plug3, plug4)
     return "%s%s%s%s" %(plug1, plug2, plug3, plug4)

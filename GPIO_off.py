@@ -1,6 +1,6 @@
 import RPi.GPIO as GPIO
 import sys
-
+from configobj import ConfigObj
 #####################################################################################################################
 # GPIO_off
 #
@@ -8,11 +8,14 @@ import sys
 # Before use, please read about the particular functions of each GPIO pin to ensure that it is usable for you
 #####################################################################################################################
 
-pin_translate = [3,5,7,11]
+pin_translate = [12,16,18,22]
 
 def run_script(pins):
 	GPIO.setwarnings(False)
 	GPIO.setmode(GPIO.BOARD)
+
+	config_file = ConfigObj("/home/pi/node-fyp/config/general.ini")
+	pin_translate = config_file["pin_settings"]["outlets"]
 
 	pin = pin_translate[int(pins)-1]
 	GPIO.setup(int(pin), GPIO.OUT)
@@ -21,5 +24,5 @@ def run_script(pins):
 	print "Pin " + str(pin) + " is now low"
 
 if __name__ == "__main__":
-	run_script(sys.argv[1:])
+	run_script(sys.argv[1])
 
