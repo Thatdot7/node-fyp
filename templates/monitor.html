@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+
+		<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+		Remove this if you use the .htaccess -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+		<title>Smart PowerBox: Scheduling</title>
+		<meta name="description" content="" />
+		<meta name="author" content="Moses Wan" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link href="{{ static_url("css/bootstrap.min.css") }}" rel="stylesheet">
+        <link href="{{ static_url("css/schedule.css") }}" rel="stylesheet">
+
+		<!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+	</head>
+
+	<body>
+		<nav class="navbar navbar-inverse navbar-static-top">
+    		<div class="navbar-inner">
+    			<div class="container">
+    				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        				<span class="icon-bar"></span>
+        				<span class="icon-bar"></span>
+        				<span class="icon-bar"></span>
+      				</a>
+      				<a class="brand">Smart PowerBox</a>
+      				<div class="nav-collapse collapse">
+		    			<ul class="nav">
+			    			<li><a href="control">Manual Control</a></li>
+						<li class="active"><a href="#">Monitoring</a></li>
+			    			<li><a href="schedule">Scheduling</a></li>
+			    			<li><a href="settings">Settings</a></li>
+		    			</ul>
+	    			</div>
+    			</div>
+    		</div>
+    		</nav>
+    		<header>
+    			<h1>Monitoring</h1>
+    		</header>
+    		<div class="row-margin">
+			<div class="row-fluid">
+				<div class="span9">
+					<div id="graph"></div>
+				</div>
+				<div class="span3">
+					<div class="radio">
+						<label>
+							<input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
+							Option one is this and that&mdash;be sure to include why it's great
+						</label>
+					</div>
+					<div class="radio">
+						<label>
+							<input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
+							Option two can be something else and selecting it will deselect option one
+						</label>
+					</div>
+				</div>
+			</div>		
+			<footer>
+				<p>
+					&copy; Copyright  by Moses Wan
+				</p>
+			</footer>
+		</div>
+		<script src="{{ static_url("js/jquery-2.0.2.min.js") }}"></script>
+		<script src="{{ static_url("js/bootstrap.min.js") }}"></script>
+		<script src="{{ static_url("js/schedule.js") }}"></script>
+		<script src="{{ static_url("js/highcharts.js") }}"></script>
+	</body>
+</html>
