@@ -61,6 +61,8 @@ def hourly():
         cur.execute("SELECT SUM(energy) FROM real_time_record WHERE (time > datetime(CURRENT_TIMESTAMP, '-1 hour'));")
 
         energy_total = cur.fetchone()[0]
+	if not energy_total:
+		energy_total = 0
 
         conn.execute("INSERT INTO hourly_record VALUES (datetime(CURRENT_TIMESTAMP), " + str(energy_total) + ");")
         conn.commit()

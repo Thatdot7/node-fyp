@@ -28,7 +28,7 @@ void *logging_thread(void *logging_array)
 	char *zErrMsg = 0;
 	int rc;
 
-	rc = sqlite3_open("test.db", &db);
+	rc = sqlite3_open("/home/pi/node-fyp/sample_power/test.db", &db);
 
 	while(1)
 	{

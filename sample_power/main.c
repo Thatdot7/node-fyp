@@ -12,7 +12,7 @@ pthread_cond_t data_ready = PTHREAD_COND_INITIALIZER;
 
 int main(int argc, char *argv[])
 {
-	int fd, i, j;
+	int fd, i;
 	pthread_t calc_process;
 
 	fd = open(device, O_RDWR);
@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 
 	struct timeval x;
 
-	for( j = 0; j < 10000; j++)
+	while(1)
 	{
 		pthread_mutex_lock( &mutex1 );
 		for ( i=0; i < SAMPLE_SIZE; i++)

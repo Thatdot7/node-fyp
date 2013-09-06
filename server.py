@@ -27,7 +27,7 @@ cron = CronTab()
 
 job_list = []
 
-define("port", default=45381, help="run on the given port", type=int)
+define("port", default=80, help="run on the given port", type=int)
 
 # Access to 'config/general.ini' to read and write preferences
 class Parser:
@@ -516,6 +516,18 @@ class MonitorHandler(tornado.web.RequestHandler):
     def get(self):
         self.render('monitor.html')
 
+
+    def post(self):
+        monitor_data = self.get_argument('data', '')
+        conn = sqlite3.connect('/home/pi/node-fyp/sample_power/test.db')
+        if monitor_data == 'realtime_initial':
+            cur = conn.execute('select strftime("%s", time), real_power from real_time_record order by time desc limit 100;')
+            data = cur.fetchall()
+
+        conn.close()
+	print data;
+	self.write('Done')
+	self.finish()
 
 
 def main():

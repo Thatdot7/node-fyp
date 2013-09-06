@@ -52,14 +52,14 @@
 				<div class="span3">
 					<div class="radio">
 						<label>
-							<input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
-							Option one is this and that&mdash;be sure to include why it's great
+							<input type="radio" name="chartSelect" id="real_time" value="real_time" checked>
+							Real-Time Power Consumption
 						</label>
 					</div>
 					<div class="radio">
 						<label>
-							<input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
-							Option two can be something else and selecting it will deselect option one
+							<input type="radio" name="chartSelect" id="hourly" value="hourly">
+							Energy used in the last 24 hours
 						</label>
 					</div>
 				</div>
@@ -72,7 +72,8 @@
 		</div>
 		<script src="{{ static_url("js/jquery-2.0.2.min.js") }}"></script>
 		<script src="{{ static_url("js/bootstrap.min.js") }}"></script>
-		<script src="{{ static_url("js/schedule.js") }}"></script>
 		<script src="{{ static_url("js/highcharts.js") }}"></script>
+		<script src="{{ static_url("js/monitor.js") }}"></script>		
+		
 	</body>
 </html>
