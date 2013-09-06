@@ -190,7 +190,8 @@ class Application(tornado.web.Application):
             (r"/settings", SettingsHandler),
             (r"/ws_settings", WebSocketSettingsHandler),
             (r"/wifiwizard", WifiWizardHandler),
-            (r"/extend", ExtendWizardHandler)
+            (r"/extend", ExtendWizardHandler),
+            (r"/monitor", MonitorHandler)
         ]
         
         settings = dict(
@@ -509,6 +510,13 @@ class ExtendWizardHandler(tornado.web.RequestHandler):
         
         self.write('Done')
         self.finish()
+
+class MonitorHandler(tornado.web.RequestHandler):
+
+    def get(self):
+        self.render('monitor.html')
+
+
 
 def main():
     tornado.options.parse_command_line()
