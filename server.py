@@ -505,7 +505,7 @@ class ExtendWizardHandler(tornado.web.RequestHandler):
             network_conf.write('iface wlan1 inet manual\n')
             network_conf.write('wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\n\n')
             network_conf.write('iface default inet dhcp\n')
-
+	
         startup.update()
         
         self.write('Done')
@@ -521,12 +521,23 @@ class MonitorHandler(tornado.web.RequestHandler):
         monitor_data = self.get_argument('data', '')
         conn = sqlite3.connect('/home/pi/node-fyp/sample_power/test.db')
         if monitor_data == 'realtime_initial':
-            cur = conn.execute('select strftime("%s", time), real_power from real_time_record order by time desc limit 100;')
-            data = cur.fetchall()
+            cur = conn.execute('select strftime("%s", time), real_power from real_time_record where time = (select max(time) from real_time_record);')
+            data = cur.fetchall()[0][1]
+
+        elif monitor_data == 'last_hours':
+            cur = conn.execute("select strftime('%s', time), energy from hourly_record where time > datetime('now', '-1 day');")
+            results = cur.fetchall()
+
+            data = {'data': []}
+            for items in results:
+                data['data'].append([int(items[0])*1000, items[1]/ 36e5])
+
+
+
 
         conn.close()
-	print data;
-	self.write('Done')
+	data = json.dumps(data)
+	self.write(data)
 	self.finish()
 
 

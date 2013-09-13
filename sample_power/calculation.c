@@ -37,7 +37,7 @@ void *calculation_thread(void *sample)
 
 		for( i=0; i < SAMPLE_SIZE; i++)
 		{
-			real_power += ((double) sample_temp.V[i] - 505) * 3.3 / 1024 * 241.702 * ((double) sample_temp.I[i] - 511) * 3.3 / 1024 * 9.327;
+			real_power += ((double) sample_temp.V[i] - 505) * 3.3 / 1024 * 241.702 * ((double) sample_temp.I[i] - 514) * 3.3 / 1024 * 9.327;
 		}
 
 		real_power = real_power / SAMPLE_SIZE;

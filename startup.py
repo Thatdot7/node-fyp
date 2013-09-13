@@ -4,6 +4,7 @@ from configobj import ConfigObj
 def update():
 	config = ConfigObj('/home/pi/node-fyp/config/general.ini')
 	if config['range_extension']['enable'] == 'true':
+		subprocess.call('ifconfig wlan0 ' + config['range_extension']['router'] + ' netmask ' + config['range_extension']['netmask'], shell=True)
 		subprocess.call('service udhcpd restart', shell=True)
 		subprocess.call('service hostapd restart', shell=True)
 	else:
