@@ -1,4 +1,4 @@
-f = open('node-fyp/config/originals/udhcpd.conf','r')
+f = open('originals/udhcpd.conf','r')
 
 output = f.read()
 

@@ -63,6 +63,11 @@ while True:
 	
 	print broadcast_list
 
+	try:
+		msg = json.loads(msg)
+	except:
+		continue
+
 	# Check if there is a "source" field. If there isn't, put on in
 	# then send the device information to the relevant address
 	if msg.get('source'):
@@ -73,4 +78,4 @@ while True:
 
 	# Broadcast the original message to all other networks
 	for broadcast in broadcast_list:
-		s.sendto(json.dumps(msg, (broadcast, 1234))
+		s.sendto(json.dumps(msg), (broadcast, 1234))

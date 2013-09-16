@@ -1,5 +1,5 @@
-#define SAMPLE_SIZE 10
-#define PROCESSING_SIZE 200
+#define SAMPLE_SIZE 15
+#define PROCESSING_SIZE 150
 
 typedef struct {
 	unsigned int V[SAMPLE_SIZE];

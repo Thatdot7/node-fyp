@@ -238,7 +238,10 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
                  GPIO_off.run_script(message[1])
              
         plug_status = GPIO_handler.read()
-            
+        record_state = ConfigObj('/home/pi/node-fyp/config/general.ini')
+	record_state['last_state']['plug_state'] = plug_status
+	record_state.write()
+
         for connections in self.connections:
             connections.write_message(plug_status)
         

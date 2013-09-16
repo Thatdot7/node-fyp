@@ -37,7 +37,7 @@ void *calculation_thread(void *sample)
 
 		for( i=0; i < SAMPLE_SIZE; i++)
 		{
-			real_power += ((double) sample_temp.V[i] - 505) * 3.3 / 1024 * 241.702 * ((double) sample_temp.I[i] - 514) * 3.3 / 1024 * 9.327;
+			real_power += ((double) sample_temp.V[i] - 508) * 3.3 / 1024 * 252.1 * ((double) sample_temp.I[i] - 512) * 3.3 / 1024 * 11.8;
 		}
 
 		real_power = real_power / SAMPLE_SIZE;
@@ -63,7 +63,7 @@ void *calculation_thread(void *sample)
 		// Print debug statements
 		//printf("Real Power = %f\tEnergy = %f\tV = %d-%d\tTime = %f\n", log.real_power[count-1], log.energy[count-1], 
 		//		sample_temp.V[0], sample_temp.V[SAMPLE_SIZE-1], (time_stamp - prev_time));
-		//fprintf(f, "%f, %d, %d, %f\n", time_stamp, sample_temp.V[0], sample_temp.I[0], time_stamp-prev_time);
+		//fprintf(f, "%f, %d, %d, %f\n", time_stamp, sample_temp.V[0], sample_temp.I[0]);
 		//printf("Ch1 = %d\tCh2 = %d\n", sample_temp.V[0], sample_temp.I[0]);
 		
 		// Setting up variables for next round

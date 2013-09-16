@@ -6,16 +6,18 @@ $(document).ready(function() {
                 useUTC: false
             }
         });
-
+	$(".power-level").show();
 	real_time_chart();
 
 	$("input[name='chartSelect']").on('change', function(){
 		console.log($(this).val());
 		if ($(this).val() == "real_time"){
 			real_time_chart();
+			$(".power-level").show();
 		} else {
 			clearInterval(update_realtime);
 			column_chart();
+			$(".power-level").hide();
 		}
 	});
 });    
@@ -36,6 +38,7 @@ function real_time_chart() {
 							$.post('monitor', {"data" : "realtime_initial"}).done(function(data){
 								var x = (new Date()).getTime(), // current time
 								y = parseFloat(data);
+								$(".power").text(y);
 								series.addPoint([x, y], true, true);
 							});
 						}, 1000);
