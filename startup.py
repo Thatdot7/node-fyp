@@ -7,9 +7,9 @@ def update():
 
 	GPIO_handler.write(config['last_state']['plug_state'])
 	if config['range_extension']['enable'] == 'true':
-		subprocess.call('service udhcpd restart', shell=True)
+		subprocess.call('ifconfig wlan0 ' + config['range_extension']['router'] + ' netmask ' + config['range_extension']['netmask'], shell=True)
+		subprocess.call('service isc-dhcp-server restart', shell=True)
 		subprocess.call('service hostapd restart', shell=True)
-		# subprocess.call('ifconfig wlan0 ' + config['range_extension']['router'] + ' netmask ' + config['range_extension']['netmask'], shell=True)
 	else:
 		subprocess.call('service hostapd stop', shell=True)
 		subprocess.call('service udhcpd stop', shell=True)

@@ -14,9 +14,13 @@ $(document).ready(function() {
 		if ($(this).val() == "real_time"){
 			real_time_chart();
 			$(".power-level").show();
+		} else if ($(this).val() == "hourly"){
+			clearInterval(update_realtime);
+			column_chart("last_hours");
+			$(".power-level").hide();
 		} else {
 			clearInterval(update_realtime);
-			column_chart();
+			column_chart("last_days");
 			$(".power-level").hide();
 		}
 	});
@@ -95,10 +99,19 @@ function real_time_chart() {
 	});
 }
 
-function column_chart() {
-	$.post('monitor', {"data" : "last_hours"}).done(function(data){
+
+function column_chart(type) {
+
+	var dateFormat;
+	if(type == 'last_hours'){
+		dateFormat = {hour: '%H:%M'};
+	} else {
+		dateFormat = {day: '%e. %b'};
+	} 
+		
+
+	$.post('monitor', {"data" : type}).done(function(data){
 		posted_data = JSON.parse(data);
-		console.log(posted_data.data);
 	
 		$('#graph').highcharts({
 			chart: {
@@ -109,9 +122,7 @@ function column_chart() {
 			},
 			xAxis: {
 				type: 'datetime',
-				dateTimeLabelFormat: {
-					hour: '%H:%M'
-				}
+				dateTimeLabelFormat: dateFormat
 			},
 			yAxis: {
 				min: 0,
@@ -129,7 +140,6 @@ function column_chart() {
 				pointFormat: '{point.y:.4f}kWh',
 			},
 			series: [{
-				name: 'Population',
 				data: posted_data.data
 				
 	            }]

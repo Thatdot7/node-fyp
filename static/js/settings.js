@@ -13,7 +13,10 @@ var SocketHandler = {
 			if(data.method == "0"){
 				id_tag = "#" + data.id + "_name";
 				$(id_tag).text(data.value);
-			};
+			}else if(data.method == "1"){
+				id_tag = "#" + data.id + "_name";
+				$(id_tag).text(data.value);
+			};;
 		}
 	}
 }
@@ -23,7 +26,13 @@ $(document).ready( function(){
 	console.log("Javascript reloaded");
 	$(".update").on('click', function() {
 		id_tag = $(this).parent().find("input").attr("id");
-		var message = { "method" : "0",
+		
+		if(id_tag == "zone" | id_tag == "device"){
+			method = "1";
+		} else {
+			method = "0";
+		}
+		var message = { "method" : method,
 				"id" : id_tag,
 				"value" : $("#" + id_tag).val() }
 		SocketHandler.socket.send(JSON.stringify(message));

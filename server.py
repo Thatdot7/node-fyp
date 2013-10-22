@@ -44,7 +44,7 @@ class Parser:
             self.parser[section][item] = value
         else:
             self.parser[item] = value
-            
+
         self.parser.write()
 
 # Handles the storing of task details for the "atd" package
@@ -343,10 +343,14 @@ class SettingsHandler(tornado.web.RequestHandler):
         plug_names.append(config.get('plug_names', 'plug3'))
         plug_names.append(config.get('plug_names', 'plug4'))
 
-        output = subprocess.check_output("wpa_cli status", shell=True)
-        output = output.split('\n')
+        try:
+        	output = subprocess.check_output("wpa_cli status", shell=True)
+        	output = output.split('\n')
+        except:
+        	output = "Cannot connect to network\n"
         
-        self.render('settings.html', plug_names = plug_names, wifi_status = output )
+        self.render('settings.html', plug_names = plug_names, wifi_status = output,
+        	zone_name = config.get('general','zone'), device_name = config.get('general', 'device') )
 
 # Handles the WebSockets for "/settings"
 class WebSocketSettingsHandler(tornado.websocket.WebSocketHandler):
@@ -361,6 +365,8 @@ class WebSocketSettingsHandler(tornado.websocket.WebSocketHandler):
 
         if data['method'] == "0":
             self.config.write('plug_names', data['value'], data['id'])
+        else:
+            self.config.write('general', data['value'], data['id'])
 
             
         for connection in self.connections:
@@ -463,14 +469,23 @@ class ExtendWizardHandler(tornado.web.RequestHandler):
         self.extension_settings.write('range_extension', self.get_argument('end', ''), 'end')
         self.extension_settings.write('range_extension', self.get_argument('netmask', ''), 'netmask')
 
-        with open('/etc/udhcpd.conf', 'w') as udhcpd_file:
-            udhcpd_file.write("start " + self.extension_settings.get('range_extension', 'start') + '\n')
-            udhcpd_file.write("end " + self.extension_settings.get('range_extension', 'end') + '\n')
-            udhcpd_file.write('interface wlan0\n')
-            udhcpd_file.write('opt dns 8.8.8.8 4.2.2.2\n')
-            udhcpd_file.write("option subnet " + self.extension_settings.get('range_extension', 'netmask') + '\n')
-            udhcpd_file.write("opt router " + self.extension_settings.get('range_extension', 'router') + '\n')
-            udhcpd_file.write('option lease 864000\n')
+        subnet = self.extension_settings.get('range_extension', 'router').split('.')
+        netmask = self.extension_settings.get('range_extension', 'netmask').split('.')
+
+        for i in range(len(subnet)):
+            subnet[i] = str(int(subnet[i]) & int(netmask[i]))
+            
+        with open('/etc/dhcp/dhcpd.conf', 'w') as udhcpd_file:
+            udhcpd_file.write("ddns-update-style none;\n")
+            udhcpd_file.write("default-lease-time 600;\n")
+            udhcpd_file.write("max-lease-time 7200;\n")
+            udhcpd_file.write("log-facility local7;\n")
+            udhcpd_file.write("subnet " + subnet[0] + "." + subnet[1] +"." + subnet[2] + "." + subnet[3]+ " netmask " + self.extension_settings.get('range_extension', 'netmask') + " {\n")
+            udhcpd_file.write("  range " + self.extension_settings.get('range_extension', 'start') + " " + self.extension_settings.get('range_extension', 'end') + ';\n')
+            udhcpd_file.write("  option subnet-mask " + self.extension_settings.get('range_extension', 'netmask') + ';\n')
+            udhcpd_file.write("  option routers " + self.extension_settings.get('range_extension', 'router') + ';\n')
+            udhcpd_file.write("  option domain-name-servers 8.8.8.8, 4.2.2.2;\n")
+            udhcpd_file.write('}')
 
         hostapd_file = ConfigObj('/etc/hostapd/hostapd.conf')
         hostapd_file['ssid'] = self.extension_settings.get('range_extension', 'ssid')
@@ -527,8 +542,12 @@ class MonitorHandler(tornado.web.RequestHandler):
             cur = conn.execute('select strftime("%s", time), real_power from real_time_record where time = (select max(time) from real_time_record);')
             data = cur.fetchall()[0][1]
 
-        elif monitor_data == 'last_hours':
-            cur = conn.execute("select strftime('%s', time), energy from hourly_record where time > datetime('now', '-1 day');")
+        else:
+            if monitor_data == 'last_hours':
+                cur = conn.execute("select strftime('%s', time), energy from hourly_record where time > datetime('now', '-1 day');")
+            else:
+                cur = conn.execute("select strftime('%s', time), energy from daily_record where time > datetime('now', '-7 day');")
+                
             results = cur.fetchall()
 
             data = {'data': []}

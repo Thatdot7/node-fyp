@@ -2,6 +2,7 @@ import socket, select
 import json
 import netifaces
 import subprocess
+from configobj import ConfigObj
 
 # Socket Setup
 # Attributes of UDP, non-blocking, reusable ports and broadcast
@@ -11,11 +12,6 @@ s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, True)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
 s.bind(('', 1234))
 s.setblocking(0)
-
-return_msg = [{ "Zone": "Bedroom 1",
-		"Device" : "Smart Powerboard"
-		}]
-
 
 # Function to get the details of the IP address information from each interface
 def ip_addressv4():
@@ -68,6 +64,14 @@ while True:
 	except:
 		continue
 
+
+	# Getting the details of the device from the config folder
+	details = ConfigObj('/home/pi/node-fyp/config/general.ini')
+
+	return_msg = [{ "Zone": details['general']['zone'],
+		"Device" : details['general']['device']
+		}]
+
 	# Check if there is a "source" field. If there isn't, put on in
 	# then send the device information to the relevant address
 	if msg.get('source'):
@@ -79,3 +83,4 @@ while True:
 	# Broadcast the original message to all other networks
 	for broadcast in broadcast_list:
 		s.sendto(json.dumps(msg), (broadcast, 1234))
+

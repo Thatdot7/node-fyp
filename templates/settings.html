@@ -101,6 +101,39 @@
 								</div>
 							</div>
 						</div>
+						<div class="accordion-group">
+							<div class="accordion-heading">
+								<a class="accordion-toggle" data-toggle="collapse" data-parent="#names" href="#general-editor">
+									General Settings
+								</a>
+							</div>
+							<div id="general-editor" class="accordion-body collapse">
+								<div class="accordion-inner">
+									<form>
+										<div class="control-group">
+											<label class="control-label" for="plug1">Zone:</label>
+											<div class="controls">
+												<div class="input-append">
+													<input type="text" placeholder="Enter Zone" id="zone">
+													<button class="btn update" type="button">Update</button>	
+												</div>
+												<span class="help-inline">Current zone: <span id="zone_name">{{ zone_name }}</span></span>
+											</div>
+										</div>
+										<div class="control-group">
+											<label class="control-label" for="plug2">Device Name:</label>
+											<div class="controls">
+												<div class="input-append">
+													<input type="text" placeholder="Enter Device Name" id="device">
+													<button class="btn update" type="button">Update</button>	
+												</div>
+												<span class="help-inline">Current Device name: <span id="device_name">{{ device_name }}</span></span>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
 					</section>
 				</div>
 				<div class="span6">

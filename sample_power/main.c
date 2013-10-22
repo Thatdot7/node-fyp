@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 
 			//sample_buffer.V[i] = (unsigned int) (500 * sin(0.5*y) + 512);
 			//sample_buffer.I[i] = 513;
-			usleep(100);
+			usleep(250);
 		}
 
 		pthread_cond_signal( &data_ready);
